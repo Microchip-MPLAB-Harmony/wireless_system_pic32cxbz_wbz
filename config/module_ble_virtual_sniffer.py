@@ -24,7 +24,7 @@
 
 print('Load Module: Harmony Wireless Bluetooth Virtual Sniffer')
 
-snifferComponent  = Module.CreateComponent('ble_sniffer', 'BLE SNIFFER', '/Wireless/System Services', 'driver/ble_virtual_sniffer/sniffer.py')
+snifferComponent  = Module.CreateComponent('ble_sniffer', 'BLE SNIFFER', '/Wireless/System Services', 'config/ble_virtual_sniffer/sniffer.py')
 snifferComponent.setDisplayType('Bluetooth Virtual Sniffer')
 #
 snifferComponent.addDependency('BLE_Stack_Dependency', 'BLE_STACK', None, True, True)

@@ -24,7 +24,7 @@
 
 print('Load Module: Harmony Wireless BLE OTA System Service')
 
-bleOtaComponent  = Module.CreateComponent('ble_ota', 'BLE OTA APP SERVICE', '/Wireless/System Services/', 'driver/ble_ota/ble_ota_app.py')
+bleOtaComponent  = Module.CreateComponent('ble_ota', 'BLE OTA APP SERVICE', '/Wireless/System Services/', 'config/ble_ota/ble_ota_app.py')
 bleOtaComponent.setDisplayType('BLE OTA App Service')
 bleOtaComponent.addDependency('BLE_OTAP_Dependency', 'PROFILE_OTAP', 'BLE OTA Profile', True, False)
 bleOtaComponent.addDependency('App_Timer', 'APP_TIMER_SERVICE', 'App Timer', True, True)

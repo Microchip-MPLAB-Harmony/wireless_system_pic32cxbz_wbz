@@ -26,9 +26,9 @@
 
 print('Load Module: Harmony Wireless FreeRTOS based SW timer service')
 
-appTimerComponent  = Module.CreateComponent('app_timer', 'APP_TIMER_SERVICE', '/Wireless/System Services/', 'driver/app_timer/app_timer.py')
+appTimerComponent  = Module.CreateComponent('app_timer', 'APP_TIMER_SERVICE', '/Wireless/System Services/', 'config/app_timer/app_timer.py')
 appTimerComponent.setDisplayType('Software Timer Using FreeRTOS')
 appTimerComponent.addCapability('App_Timer_Capability', 'APP_TIMER_SERVICE', True)
-appTimerComponent.addDependency('PIC32CX_BZ2_DevSupport_Dependency', 'Device_Support', None, True, True)
+appTimerComponent.addDependency('PIC32CX_BZ_DevSupport_Dependency', 'Device_Support', None, True, True)
 
 
