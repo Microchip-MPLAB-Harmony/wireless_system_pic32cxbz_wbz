@@ -36,6 +36,8 @@ def loadModule():
     print('processor={}'.format(processor))
 
     if( processor in pic32cx_bz2_family):
+        ## PIC32CX-BZ BLE ZIGBEE Provisioning Service
+        execfile(Module.getPath() + '/config/module_ble_zigbee_provision.py')
         # app timer service
         execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
         # ble virtual sniffer
