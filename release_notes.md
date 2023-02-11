@@ -8,6 +8,7 @@
 
 
 ### New Features
+- [15.4] P2P PHY Application based on Standalone 15.4 Phy MCC component.
 - [BLE] Application Timer.
 - [BLE] Over The Air (OTA) firmware upgrade for BLE devices.
 - [BLE] BLE Virtual Sniffer tool for debugging BLE HCI Packets.
@@ -16,7 +17,7 @@
 - None
 
 ### Known Issues and Limitations
-- None
+- [15.4]In Data Mode, max data bytes/payload limit is 232 bytes (due to SYS CONSOLE Component limitation).
 
 ### Development Tools
 

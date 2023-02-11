@@ -24,7 +24,7 @@
 ######################  Harmony replaceme  ######################
 def loadModule():
     print('Load Module: Harmony Wireless Service for PIC32CXBZ2 and WBZ45x Family')
-    
+
     pic32cx_bz2_family = {'PIC32CX1012BZ25048',
                           'PIC32CX1012BZ25032',
                           'PIC32CX1012BZ24032',
@@ -44,3 +44,5 @@ def loadModule():
         execfile(Module.getPath() + '/config/module_ble_virtual_sniffer.py')
         # ble ota application service
         execfile(Module.getPath() + '/config/module_ble_ota.py')
+        # IEEE 802.15.4 P2P PHY Application
+        execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')
