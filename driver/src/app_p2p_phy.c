@@ -305,7 +305,7 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             else
             {
-                SYS_CONSOLE_PRINT("\r\nTimer Started with period %x\r\n",sysTimerFlag.periodicSysTimer);
+                // SYS_CONSOLE_PRINT("\r\nTimer Started with period %x\r\n",sysTimerFlag.periodicSysTimer);
             }
             break;
         }
@@ -1003,19 +1003,18 @@ void PHY_TxDoneCallback(PHY_Retval_t status, PHY_FrameInfo_t *frame)
     {
         if((appNwkParam.txDoneCbStatus == PHY_SUCCESS) && ((appNwkParam.unicastFlagUserDefData == true) || (appNwkParam.unicastFlagPredefData == true)))
         {
-            SYS_CONSOLE_PRINT("\r\nACK RCVD for PKT No. %d\r\n", frame->mpdu[3]);
+            SYS_CONSOLE_PRINT("\r\nACK RCVD for PKT: %d\r\n", frame->mpdu[3]);
             appNwkParam.nPacketsRcvdAck += 1U;
             deviceTable[SOURCE_DEV_INDEX].txPacketCnt += 1U;
         }
         else
         {
-            SYS_CONSOLE_PRINT("\r\nNo ACK for PKT No. %d\r\n", frame->mpdu[3]);
+            SYS_CONSOLE_PRINT("\r\nNo ACK for PKT: %d\r\n", frame->mpdu[3]);
         }
     }
     SYS_CONSOLE_PRINT("\r\nTXPKTCNT: ");
     SYS_CONSOLE_PRINT("%8x\n",deviceTable[SOURCE_DEV_INDEX].txPacketCnt);
-    SYS_CONSOLE_MESSAGE("\r\n=========================\r\n");
-    SYS_CONSOLE_MESSAGE("\n");
+    SYS_CONSOLE_MESSAGE("\r\n");
     app_P2P_Phy_appModePostDataTxDoneCbSwitchHandler();
 }
 
@@ -1034,23 +1033,22 @@ void PHY_RxFrameCallback(PHY_FrameInfo_t *rxFrame)
     // Free-up the buffer which was used for reception once the frame is extracted.
 	bmm_buffer_free(rxFrame->buffer_header);
     payloadLength = payloadLength - appNwkParam.frameOverHead;
-    deviceTable[SOURCE_DEV_INDEX].rxPacketCnt  +=  1U;
-    deviceTable[SOURCE_DEV_INDEX].lqi = LQI;
-    deviceTable[SOURCE_DEV_INDEX].rssiVal = recRSSI;
-    SYS_CONSOLE_PRINT("\r\nLEN %d\r\n",payloadLength);
-    SYS_CONSOLE_PRINT("\r\nRXPKT <pkt No.: %d>\n", seqNumber);
-    SYS_CONSOLE_PRINT("\n");
+    SYS_CONSOLE_PRINT("\r\nRXPKT <pktno: %d>\n", seqNumber);
+    SYS_CONSOLE_PRINT("\r\nLen %d\r\n",payloadLength);
+    SYS_CONSOLE_PRINT("\r\n");
     for(uint8_t i = 0; i<payloadLength; i++)
     {
         SYS_CONSOLE_PRINT("%c",recBuffer[i]);
     }
-    memset(recBuffer, 0, sizeof(recBuffer));
     SYS_CONSOLE_MESSAGE("\n"); 
+    deviceTable[SOURCE_DEV_INDEX].rxPacketCnt  +=  1U;
+    deviceTable[SOURCE_DEV_INDEX].lqi = LQI;
+    deviceTable[SOURCE_DEV_INDEX].rssiVal = recRSSI;
     SYS_CONSOLE_PRINT("\r\nLQI:%i", LQI);    
     SYS_CONSOLE_PRINT("\r\nRSSI:%i", recRSSI);
     SYS_CONSOLE_PRINT("\r\nPKTCNT:");
     SYS_CONSOLE_PRINT("%8x\n",deviceTable[SOURCE_DEV_INDEX].rxPacketCnt);
-    SYS_CONSOLE_MESSAGE("\n");
+    SYS_CONSOLE_MESSAGE("\r\n");
 }
 
 /** 

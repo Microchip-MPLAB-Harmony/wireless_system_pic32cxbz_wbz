@@ -15,7 +15,7 @@ and microprocessor devices.  Refer to the following links for more information.
 
 This repository contains the MPLAB® Harmony 3 Wireless, wireless system services for the PIC32CXBZ family of devices. Wireless system services abstracts out the complexities of a networked system design and simplifies development using PIC32CXBZ. Refer to the following links for more information about each system service.
 
-* [IEEE 802.15.4 P2P PHY APPLICATION](https://microchiptechnology-my.sharepoint.com/:b:/g/personal/deepthi_kalaiarasan_microchip_com/Eczt7AaJLKFBptAsBK5FofcB-lFeqvCPUvNAPQ-eWcG6Eg?e=1yXynq)
+* [IEEE 802.15.4 P2P PHY APPLICATION](https://internal.onlinedocs.microchip.com/pr/GUID-78E799AA-58D2-417D-B866-A1D111633BFB-en-US-1/index.html)
   - P2P PHY Application built on top of the Standalone IEEE 802.15.4 Physical Layer for PIC32CX-BZ2 platform devices. The application demonstrates the usage of Standalone 15.4 PHY MCC compoenent which provides interface to access the 802.15.4(zigbee) subsystem of PIC32CX-BZ2 devices through which user can enables various functionaities of the transceiver.
 * [BLE Application Timer Services](https://onlinedocs.microchip.com/pr/GUID-A5330D3A-9F51-4A26-B71D-8503A493DF9C-en-US-1/index.html?GUID-E1A30ECC-1212-4B25-AE72-7EAF982C6D50)
   - Application timer component used to configure the different time intervals, one-shot timer, and periodic timer for Chimera WBZ45x application requirements.

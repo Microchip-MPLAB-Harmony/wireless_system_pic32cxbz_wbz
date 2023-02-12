@@ -1,1 +1,1 @@
-#include "app_p2p_phy/../app_p2p_phy_config.h"
+#include "app_p2p_phy/inc/app_p2p_phy_config.h"
