@@ -33,12 +33,6 @@ p2pPhyAppMenuChannel.setMin(11)
 p2pPhyAppMenuChannel.setMax(26)
 p2pPhyAppMenuChannel.setDefaultValue(11)
 
-# comboValues = ["0","2","16","17"]
-# global p2pPhyAppMenuChannelPage
-# p2pPhyAppMenuChannelPage = p2pPhyApp.createComboSymbol("CHANNEL_PAGE", p2pPhyAppMenu, comboValues)
-# p2pPhyAppMenuChannelPage.setLabel("CHANNEL PAGE")
-# p2pPhyAppMenuChannelPage.setDefaultValue("0")
-
 global p2pPhyAppMenuShortAddress
 p2pPhyAppMenuShortAddress = p2pPhyApp.createHexSymbol("MAC_SHORT_ADDRESS", p2pPhyAppMenu)
 p2pPhyAppMenuShortAddress.setLabel("SOURCE ADDRESS (16-BITS SHORT ADDRESS)")
