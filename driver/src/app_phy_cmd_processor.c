@@ -107,6 +107,8 @@ static void phy_ConfigRxSensitivity(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char*
 static void phy_ConfigTxPwr(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void phy_ConfigAntennaDiversity(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void phy_ConfigRxRPCMode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void update_PER_test_packets(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void throughput_timer_update(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 //CMD descriptor table definition
 static const SYS_CMD_DESCRIPTOR PhyCmdsTbl[] =
 {
@@ -163,6 +165,8 @@ static const SYS_CMD_DESCRIPTOR PhyCmdsTbl[] =
     {"configRxSensitivity",phy_ConfigRxSensitivity,"Configures receiver sensitivity level. This is used to desensitize the receiver:configRxSensitivity,<pdtlevel->0-15>\r\n"},
     {"configTxPwr",phy_ConfigTxPwr,"configure the TX Power\r\n"},
     {"configAntennaDiversity",phy_ConfigAntennaDiversity,"Configure the Antenna Diversity\r\n"},
+    {"updateThroughputTime",throughput_timer_update,"Update Throughput Timer\r\n"},
+    {"updatePERTestPacketsCnt",update_PER_test_packets,"Update PER test Packets\r\n"},
 };
 
 
@@ -242,6 +246,14 @@ static void PER_test_mode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
     app_P2P_Phy_appModeSwitchHandler();
 }
 
+static void update_PER_test_packets(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    if(appPhyCmdProcessor_StrToUint64(argv[1],&appNwkParam.nPerTestPackets))
+    {
+        SYS_CONSOLE_PRINT("\r\n No. of packets in PER test Mode set to %u\r\n",appNwkParam.nPerTestPackets);
+    }
+}
+
 static void promiscuous_mode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     OSAL_RESULT osalResult;
@@ -261,7 +273,7 @@ static void throughput_measure(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
     appPhyCmdProcessor_SetModeFlags(false,false,false,true,false,false,false);
     PAL_TimerDelay(1500000);
     appThroughputTestMode.devPerformanceParam.isModeActive = true;
-    sysTimerFlag.throughputSysTimer = 1000000U;   //1sec   
+    // sysTimerFlag.throughputSysTimer = 1000000U;   //1sec   
     SYS_CONSOLE_PRINT("\r\n Throughput Test Mode\r\n");
     sysTimerFlag.sysTimerThroughputHandle = SYS_TIME_CallbackRegisterUS(&app_P2P_Phy_systimerCallbackThroughputTestMode, (uintptr_t)&temp, sysTimerFlag.throughputSysTimer, SYS_TIME_SINGLE);
     if(sysTimerFlag.sysTimerThroughputHandle != SYS_TIME_HANDLE_INVALID)
@@ -275,6 +287,13 @@ static void throughput_measure(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
 
 }
 
+static void throughput_timer_update(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    if(appPhyCmdProcessor_StrToUint32(argv[1],&sysTimerFlag.throughputSysTimer))
+    {
+        SYS_CONSOLE_PRINT("\r\n Throughput Timer set to %u usecs\r\n",sysTimerFlag.throughputSysTimer);
+    }
+}
 
 static void update_device_table(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 { 
@@ -1543,6 +1562,20 @@ bool appPhyCmdProcessor_StrToUint64(const char *str, uint64_t *res)
     return true;
 }
 
+bool appPhyCmdProcessor_StrToUint64DecIp(const char *str, uint64_t *res) 
+{
+    char *endptr;
+    errno = 0;
+    uint64_t result = (uint64_t)strtoull(str, &endptr, 10);
+    if (errno != 0 || (*endptr != '\0')) //|| (result > 18446744073709551615U) 
+    {
+        SYS_CONSOLE_MESSAGE("\r\nInvalid input\r\n");
+        return false;
+    }
+    *res = result;
+    return true;
+}
+
 void appPhyCmdProcessor_PhyStatusPrint(PHY_Retval_t status){
 
     switch((uint8_t)status)
@@ -1764,7 +1797,7 @@ void appPhyCmdProcessor_calculateDevicePerfParams(void)
     else if(appThroughputTestMode.devPerformanceParam.isModeActive == true)
     {
         appThroughputTestMode.devPerformanceParam.isModeActive = false;
-        SYS_CONSOLE_MESSAGE("\r\n Device Performance in Throughput Test Mode per second\r\n");
+        SYS_CONSOLE_PRINT("\r\n Device Performance in Throughput Test Mode for %u usecs\r\n",sysTimerFlag.throughputSysTimer);
         appThroughputTestMode.devPerformanceParam.nBytesSent = appNwkParam.nBytesSent;
         appThroughputTestMode.devPerformanceParam.nPacketsSent = appNwkParam.nPacketsSent;
         appThroughputTestMode.devPerformanceParam.nPacketsRcvdAck = appNwkParam.nPacketsRcvdAck;

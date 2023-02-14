@@ -160,6 +160,7 @@ typedef struct
     uint64_t nPacketsRcvdAck;
     PHY_Retval_t txStatusFrameSent;
     PHY_Retval_t txDoneCbStatus;
+    uint64_t nPerTestPackets;
 } APP_NWK_PARAM;
 
 extern APP_NWK_PARAM appNwkParam;

@@ -99,6 +99,8 @@ bool app_P2P_Phy_Init(void){
             app_P2P_Phy_setFrameType(FCF_FRAMETYPE_DATA);
             sysTimerFlag.periodicSysTimer = 10000U;
             sysTimerFlag.singleShotSysTimer = 10000U;
+            sysTimerFlag.throughputSysTimer = 1000000U;
+            appNwkParam.nPerTestPackets = 100U;
             return true;   
         }
 }
@@ -941,7 +943,7 @@ void app_P2P_Phy_TransmitFrame(uint8_t *payload, uint8_t payloadLength, uint8_t 
     if(appNwkParam.txStatusFrameSent == PHY_SUCCESS)
     {
         appNwkParam.nPacketsSent += 1U;
-        if((modeSwitchFlag.enterPerTestMode == true) && (appNwkParam.nPacketsSent == 100U))
+        if((modeSwitchFlag.enterPerTestMode == true) && (appNwkParam.nPacketsSent == appNwkParam.nPerTestPackets))
         {
             modeSwitchFlag.perTestMode = true;
         }

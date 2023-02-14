@@ -134,6 +134,7 @@ bool appPhyCmdProcessor_StrToUint16(const char *str, uint16_t *res);
 bool appPhyCmdProcessor_StrToUint16HexIp(const char *str, uint16_t *res);
 bool appPhyCmdProcessor_StrToUint32(const char *str, uint32_t *res);
 bool appPhyCmdProcessor_StrToUint64(const char *str, uint64_t *res);
+bool appPhyCmdProcessor_StrToUint64DecIp(const char *str, uint64_t *res);
 void appPhyCmdProcessor_PhyStatusPrint(PHY_Retval_t status);
 void appPhyCmdProcessor_PhyTrxStatusPrint(PHY_TrxStatus_t status);
 void appPhyCmdProcessor_CmdDoneOk(void);
