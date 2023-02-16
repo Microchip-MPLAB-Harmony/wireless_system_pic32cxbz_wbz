@@ -4,7 +4,7 @@
 
 # Microchip MPLAB® Harmony 3 Release Notes
 
-## Harmony 3 Wireless system services for the PIC32CXBZ family v1.0.0
+## Harmony 3 Wireless system services for the PIC32CXBZ family v1.2.0
 
 
 ### New Features
