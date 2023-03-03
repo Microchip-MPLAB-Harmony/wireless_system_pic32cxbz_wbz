@@ -33,7 +33,7 @@ package:
       version: "1.0.0"
     - name: "wireless_apps_pic32cxbz2_wbz45"
       type: "package"
-      version: "1.0.0"
+      version: "1.2.0"
     - name: "wolfssl"
       type: "package"
       version: "4.7.0"
