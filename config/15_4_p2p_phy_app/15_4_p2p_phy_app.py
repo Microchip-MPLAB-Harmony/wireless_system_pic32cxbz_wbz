@@ -36,9 +36,9 @@ def instantiateComponent(p2pPhyApp):
 
     conditionAlwaysInclude = [True, None, []]
     res = Database.activateComponents(requiredComponents)
-    
+
     execfile(Module.getPath() + "config/15_4_p2p_phy_app/15_4_p2p_phy_app_config_menu.py")
-    
+
     #Source File Processing
     appP2PphySrc = p2pPhyApp.createFileSymbol("APP_P2P_PHY_SOURCE", None)
     appP2PphySrc.setSourcePath("/driver/src/app_p2p_phy.c")
