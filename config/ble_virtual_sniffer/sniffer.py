@@ -98,7 +98,7 @@ def onAttachmentDisconnected(source, target):
     connectID = source["id"]
     targetID = target["id"]
     if(connectID == "Sniffer_Uart_dependency"):
-       log_symbol["local_log_File_sym_obj"].addMarkupVariable("SYS_CONSOLE_CONNECTED",False)
+       # log_symbol["local_log_File_sym_obj"].addMarkupVariable("SYS_CONSOLE_CONNECTED",False)
        if log_symbol["console_inst"] != '':
            symbol_TXRingBuffer.setReadOnly(False)
            symbol_RxRingBuffer.setReadOnly(False)
