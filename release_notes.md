@@ -10,7 +10,7 @@
 - None
 
 ### Bug fixes and Improvements
-- Virtul Sniffer component issue fixed
+- Virtual Sniffer component issue fixed
 
 ### Known Issues and Limitations
 - None
@@ -21,7 +21,7 @@
 - MPLABÂ® X IDE plug-ins:
   - MPLABÂ® Code Configurator (MCC) `v5.3.7`
 - [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
-- **DFP 1.1.230 or above version**
+- **PIC32CXBZ2 Family - DFP 1.1.230 or above version**
 
 
 ------------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@
 - [BLE] BLE Virtual Sniffer tool for debugging BLE HCI Packets.
 
 ### Bug fixes and Improvements
-- None
+- [15.4]P2P PHY Application hang issue while running test modes fixed & unnecessary console logs removed to reduce app throughput.
 
 ### Known Issues and Limitations
 - [15.4]In Data Mode, max data bytes/payload limit is 232 bytes (due to SYS CONSOLE Component limitation).

@@ -64,6 +64,12 @@
 
 void APP_BleLogOutput(uint8_t logType, uint16_t packetLength, uint8_t *p_logPacket)
 {
+<#if SYS_CONSOLE_CONNECTED = true>
+   SYS_CONSOLE_HANDLE consoleHandle = SYS_CONSOLE_HandleGet(${SYS_CONSOLE_INST});
+<#else>
+	#error Sniffer Block has Unsatisfied Dependency(SYS_CONSOLE) 
+</#if>
+
    uint8_t testDbg[256];
    
    if(logType == BLE_LOG_TYPE_HCI_COMMAND)
@@ -90,7 +96,7 @@ void APP_BleLogOutput(uint8_t logType, uint16_t packetLength, uint8_t *p_logPack
    testDbg[0] = 0x66;
    memcpy(&testDbg[2],p_logPacket,packetLength);
    testDbg[packetLength+2] = 0x5A;
-<#if SERCOM_CONNECTED = true>
-   ${SERCOM_INST}_USART_Write(&testDbg[0] ,packetLength+3);
+<#if SYS_CONSOLE_CONNECTED = true>
+   SYS_CONSOLE_Write(consoleHandle,&testDbg[0] ,packetLength+3);
 </#if>
 }

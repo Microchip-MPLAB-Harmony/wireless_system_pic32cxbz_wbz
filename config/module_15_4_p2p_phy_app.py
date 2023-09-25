@@ -26,6 +26,7 @@ print("Load Module: Harmony P2P PHY Application")
 p2pPhyApp  = Module.CreateComponent('APP_P2P_PHY', 'IEEE 802.15.4 P2P PHY APP', '/Wireless/System Services/', 'config/15_4_p2p_phy_app/15_4_p2p_phy_app.py')
 p2pPhyApp.setDisplayType('P2P PHY Application')
 p2pPhyApp.addDependency('SysCmdDependency', 'SYS_COMMAND', 'CMD', True, True)
+p2pPhyApp.addDependency('Ieee802154PhyDependency', 'IEEE 802.15.4 PHY', 'IEEE 802.15.4 PHY', True, False)
 print("***** CPU: ", Variables.get("__PROCESSOR"))
 if ("WBZ" in Variables.get("__PROCESSOR")) or ("PIC32CX" in Variables.get("__PROCESSOR")) or  ("SAMR30" in Variables.get("__PROCESSOR")) or  ("SAMR21" in Variables.get("__PROCESSOR")):
     p2pPhyApp.addDependency('DeviceSupportDependency', 'Device_Support', 'Device_Support', True, True)
