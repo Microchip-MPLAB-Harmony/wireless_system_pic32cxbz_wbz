@@ -10,7 +10,8 @@
 - None
 
 ### Bug fixes and Improvements
-- Virtual Sniffer component issue fixed
+- [BLE] Virtual Sniffer component issue fixed
+- [15.4] P2P PHY Application hang issue while running test modes fixed & unnecessary console logs removed to reduce app throughput.
 
 ### Known Issues and Limitations
 - None
