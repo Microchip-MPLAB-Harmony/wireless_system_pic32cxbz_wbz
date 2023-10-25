@@ -3,15 +3,16 @@
 
 # Microchip MPLAB® Harmony 3 Release Notes
 
-## Harmony 3 Wireless system services for the PIC32CXBZ family v1.3.0
+## Harmony 3 Wireless system services for the PIC32CXBZ family v1.4.0
 
 
 ### New Features
-- None
+- RGB LED system service.
+- Temperature sensor system service
+- PIC32CXBZ3 family is added
 
 ### Bug fixes and Improvements
-- [BLE] Virtual Sniffer component issue fixed
-- [15.4] P2P PHY Application hang issue while running test modes fixed & unnecessary console logs removed to reduce app throughput.
+- None
 
 ### Known Issues and Limitations
 - None
@@ -22,7 +23,8 @@
 - MPLABÂ® X IDE plug-ins:
   - MPLABÂ® Code Configurator (MCC) `v5.3.7`
 - [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
-- **PIC32CXBZ2 Family - DFP 1.1.230 or above version**
+- **PIC32CXBZ2 Family - DFP 1.2.230 or above version**
+- **PIC32CXBZ3 Family - DFP 1.1.165 or above version**
 
 
 ------------------------------------------------------------------------------------------------------

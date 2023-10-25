@@ -23,7 +23,7 @@
 
 ######################  Harmony replaceme  ######################
 def loadModule():
-    print('Load Module: Harmony Wireless Service for PIC32CXBZ2 and WBZ45x Family')
+    print('Load Module: Harmony Wireless Service for PIC32CXBZx and WBZx Family')
 
     pic32cx_bz2_family = {'PIC32CX1012BZ25048',
                           'PIC32CX1012BZ25032',
@@ -31,6 +31,11 @@ def loadModule():
                           'WBZ451',
                           'WBZ450',
                           }
+    pic32cx_bz3_family = {'PIC32CX5109BZ31048',
+                          'PIC32CX5109BZ31032',
+                          'WBZ351',
+                          'WBZ350',
+                          }                          
 
     processor = Variables.get('__PROCESSOR')
     print('processor={}'.format(processor))
@@ -46,3 +51,14 @@ def loadModule():
         execfile(Module.getPath() + '/config/module_ble_ota.py')
         # IEEE 802.15.4 P2P PHY Application
         execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')
+    if( processor in pic32cx_bz3_family):
+        # app timer service
+        execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
+        # rgb led service
+        execfile(Module.getPath() + '/config/module_rgb_led.py')
+        # ble virtual sniffer
+        execfile(Module.getPath() + '/config/module_ble_virtual_sniffer.py')        
+        # temp sensor service
+        execfile(Module.getPath() + '/config/module_temp_sensor.py')
+        # ble ota application service
+        execfile(Module.getPath() + '/config/module_ble_ota.py')		
