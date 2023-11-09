@@ -9,7 +9,7 @@
 ### New Features
 - RGB LED system service.
 - Temperature sensor system service
-- PIC32CXBZ3 family is added
+- PIC32CXBZ3 Device Family is added
 
 ### Bug fixes and Improvements
 - None
