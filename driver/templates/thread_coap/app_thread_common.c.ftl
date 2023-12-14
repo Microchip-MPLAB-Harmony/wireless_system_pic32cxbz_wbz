@@ -1,0 +1,187 @@
+/*******************************************************************************
+  Application Thread Common Source File
+
+  Company:
+    Microchip Technology Inc.
+
+  File Name:
+    app_thread_common.c
+
+  Summary:
+    This file contains the Application Thread Common Source code for this project.
+
+  Description:
+    This file contains the Application Thread Common Source code for this project.
+ *******************************************************************************/
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Included Files
+// *****************************************************************************
+// *****************************************************************************
+
+#include <string.h>
+#include <stdio.h>
+#include "definitions.h"
+
+#include "configuration.h"
+#include "openthread/link.h"
+#include "openthread/thread.h"
+#include "openthread/dataset_ftd.h"
+#include "app_thread_common.h"
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Global Data Definitions
+// *****************************************************************************
+// *****************************************************************************
+
+/**Pointer to the Thread instance. */
+extern otInstance *instance;
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Application Local Functions
+// *****************************************************************************
+// *****************************************************************************
+
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Interface Functions
+// *****************************************************************************
+// *****************************************************************************
+
+void APP_ThreadInit(otStateChangedCallback stateChangedCallback) 
+{
+    otError error = OT_ERROR_NONE;
+    
+    if(instance != NULL)
+    {
+        if(error == OT_ERROR_NONE)
+        {
+            otLinkModeConfig mode;
+            memset(&mode, 0, sizeof(mode));
+<#if THREAD_SLEEP_ENABLE == true>
+            mode.mRxOnWhenIdle       = false; // Join network as SED.
+            mode.mDeviceType       = false;   ///< 1, if the sender is an FTD. 0, otherwise.
+            mode.mNetworkData      = false;
+<#else>
+            mode.mRxOnWhenIdle       = true;
+<#if THREAD_DEVICE_ROLE_CONFIG == "FTD">
+            mode.mDeviceType         = true;
+            mode.mNetworkData        = true;
+</#if>
+</#if>
+            if(error == OT_ERROR_NONE)
+            {
+                error = otThreadSetLinkMode(instance, mode);
+            }
+            else
+            {
+                /* Add debug print if required.*/ 
+            }        
+        }
+        else
+        {
+            /* Add debug print if required.*/ 
+        }
+    }
+    else
+    {
+        /* Add debug print if required.*/ 
+    }
+    
+    otSetStateChangedCallback(instance, stateChangedCallback, NULL);
+}
+
+void APP_ThreadSetNwParameters(void)
+{    
+<#if THREAD_SLEEP_ENABLE == true>
+    DEVICE_DeepSleepWakeSrc_T wakeupSrc;
+    DEVICE_GetDeepSleepWakeUpSrc(&wakeupSrc);
+    if(wakeupSrc == DEVICE_DEEP_SLEEP_WAKE_NONE  ||  wakeupSrc == DEVICE_DEEP_SLEEP_WAKE_MCLR)     
+    {
+</#if> 
+        otOperationalDataset aDataset;
+        memset(&aDataset, 0, sizeof(otOperationalDataset));
+<#if THREAD_DEVICE_ROLE_CONFIG == "FTD">
+#if DEVICE_AS_LEADER  
+        otError err = otDatasetCreateNewNetwork(instance, &aDataset);
+        if (err != OT_ERROR_NONE) 
+        {
+            /* Add debug print if required.*/
+        }
+#endif
+</#if>
+
+        aDataset.mChannel                      = CHANNEL;
+        aDataset.mComponents.mIsChannelPresent = true;
+
+        aDataset.mChannelMask                      = (otChannelMask)CHANNEL_MASK;
+        aDataset.mComponents.mIsChannelMaskPresent = true;
+
+        aDataset.mPanId                      = (otPanId)PANID;
+        aDataset.mComponents.mIsPanIdPresent = true;
+
+        uint8_t ex_panid[OT_EXT_PAN_ID_SIZE] = EXD_PANID;
+        memcpy(aDataset.mExtendedPanId.m8, ex_panid, sizeof(aDataset.mExtendedPanId));
+        aDataset.mComponents.mIsExtendedPanIdPresent = true;
+
+        uint8_t nw_key[OT_NETWORK_KEY_SIZE] = NW_KEY;
+        memcpy(aDataset.mNetworkKey.m8,nw_key,sizeof(aDataset.mNetworkKey));
+        aDataset.mComponents.mIsNetworkKeyPresent = true;
+
+        char nwk_name[] = NWK_NAME;
+        size_t length = strlen(nwk_name);
+        memset(aDataset.mNetworkName.m8,0,OT_NETWORK_NAME_MAX_SIZE);
+        if(length <= OT_NETWORK_NAME_MAX_SIZE)
+        {
+           memcpy(aDataset.mNetworkName.m8, nwk_name, length);
+        }
+        else
+        {
+           memcpy(aDataset.mNetworkName.m8, nwk_name, OT_NETWORK_NAME_MAX_SIZE); 
+        }
+        aDataset.mComponents.mIsNetworkNamePresent = true;
+
+        uint8_t ml_prefix[OT_MESH_LOCAL_PREFIX_SIZE] = ML_PREFIX;
+        memcpy(aDataset.mMeshLocalPrefix.m8,ml_prefix,sizeof(aDataset.mMeshLocalPrefix));
+        aDataset.mComponents.mIsMeshLocalPrefixPresent = true;
+
+        otDatasetSetActive(instance, &aDataset);
+<#if THREAD_SLEEP_ENABLE == true>
+    }
+</#if> 
+}
+
+void APP_ThreadNwStart(void)
+{   
+    otError error = OT_ERROR_NONE;
+    error = otIp6SetEnabled(instance, true);
+
+    if(error == OT_ERROR_NONE)
+    {
+        error = otThreadSetEnabled(instance, true);
+        if(error == OT_ERROR_NONE)
+        {
+            /* Add debug print if required.*/ 
+        }
+        else
+        {
+            /* Add debug print if required.*/ 
+        }
+    }
+}
+
+otInstance* APP_ThreadGetInstance(void)
+{
+    return instance; 
+}
+
+
+
+
+/* *****************************************************************************
+ End of File
+ */

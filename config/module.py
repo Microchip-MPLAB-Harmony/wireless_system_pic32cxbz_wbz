@@ -51,6 +51,8 @@ def loadModule():
         execfile(Module.getPath() + '/config/module_ble_ota.py')
         # IEEE 802.15.4 P2P PHY Application
         execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')
+        # Thread CoAP Application Service
+        execfile(Module.getPath() + '/config/module_thread_coap.py')
     if( processor in pic32cx_bz3_family):
         # app timer service
         execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
