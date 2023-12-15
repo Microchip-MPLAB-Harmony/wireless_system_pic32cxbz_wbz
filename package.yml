@@ -39,4 +39,10 @@ package:
       version: "v1.0.0"      
     - name: "wireless_zigbee"
       type: "package"
-      version: "v6.0.0"      
+      version: "v6.0.0"
+    - name: "wireless_thread"
+      type: "package"
+      version: "v1.0.0"
+    - name: "openthread"
+      type: "package"
+      version: "mchp_harmony_wireless_thread_v1.0.0      

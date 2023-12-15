@@ -13,5 +13,7 @@
         <Dependency name="zlib" version="v1.2.11"/>
         <Dependency name="wireless_15_4_phy" version="v1.1.0"/>
         <Dependency name="wireless_15_4_mac" version="v1.0.0"/>
+		<Dependency name="wireless_thread" version="v1.0.0"/>
+		<Dependency name="openthread" version="mchp_harmony_wireless_thread_v1.0.0"/>
     </Dependencies>
 </Package>

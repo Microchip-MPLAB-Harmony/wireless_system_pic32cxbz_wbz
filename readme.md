@@ -23,6 +23,8 @@ This repository contains the MPLAB® Harmony 3 Wireless, wireless system service
   - BLE Virtual Sniffer system service component for capturing the HCI packets and feed it to the sniffer tool for debugging purposes
 * [IEEE 802.15.4 P2P PHY APPLICATION](https://onlinedocs.microchip.com/pr/GUID-A5330D3A-9F51-4A26-B71D-8503A493DF9C-en-US-2/index.html?GUID-7663617B-0DD1-45FA-86B5-EB0778A5A424)
   - P2P PHY Application built on top of the Standalone IEEE 802.15.4 Physical Layer for PIC32CX-BZ2 platform devices. The application demonstrates the usage of Standalone 15.4 PHY MCC compoenent which provides interface to access the 802.15.4(zigbee) subsystem of PIC32CX-BZ2 devices through which user can enable various functionaities of the transceiver.
+* [Thread CoAP Application Service](https://onlinedocs.microchip.com/oxy/GUID-A5330D3A-9F51-4A26-B71D-8503A493DF9C)
+  - CoAP Application service component build on top of Thread stack for PIC32CX-BZ2 platform devices. The CoAP Application service component is built on top of the Thread stack for PIC32CX-BZ2 platform devices. This component is used to develop CoAP applications on the Thread stack.
 
 Refer to the following links for release notes, training materials, and interface reference information.
 
