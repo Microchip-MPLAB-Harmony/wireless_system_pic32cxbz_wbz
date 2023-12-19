@@ -4,7 +4,7 @@ package:
   type: "application"
   status: "production"
   required: false
-  version: "v1.4.0"
+  version: "v1.5.0"
 
   dependencies:
     - name: "csp"
@@ -21,7 +21,7 @@ package:
       version: "v3.8.0"
     - name: "CMSIS-FreeRTOS"
       type: "package"
-      version: "v10.3.1"
+      version: "v10.5.1"
     - name: "wireless_ble"
       type: "package"
       version: "v1.2.0"
@@ -30,7 +30,7 @@ package:
       version: "v1.3.0"      
     - name: "wolfssl"
       type: "package"
-      version: "v4.8.1"
+      version: "v5.4.0"
     - name: "wireless_15_4_phy"
       type: "package"
       version: "v1.1.0"
