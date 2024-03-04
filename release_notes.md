@@ -1,7 +1,29 @@
 ﻿![Microchip logo](https://raw.githubusercontent.com/wiki/Microchip-MPLAB-Harmony/Microchip-MPLAB-Harmony.github.io/images/microchip_logo.png)
 ![Harmony logo small](https://raw.githubusercontent.com/wiki/Microchip-MPLAB-Harmony/Microchip-MPLAB-Harmony.github.io/images/microchip_mplab_harmony_logo_small.png)
 
+# Microchip MPLAB® Harmony 3 Release Notes
 
+## Harmony 3 Wireless system services for the PIC32CXBZ family v1.6.0
+
+
+### New Features
+- None
+
+### Bug fixes and Improvements
+- Changes in CoAP APP component as per Thread SDK release v1.1.0.
+
+### Known Issues and Limitations
+- None
+
+### Development Tools
+
+- [MPLABÂ® X IDE v6.20](https://www.microchip.com/mplab/mplab-x-ide)
+- MPLABÂ® X IDE plug-ins:
+- MPLABÂ® Code Configurator (MCC) `v5.5.0`
+- [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
+- **PIC32CXBZ2 Family - DFP 1.3.238**
+
+------------------------------------------------------------------------------------------------------
 
 # Microchip MPLAB® Harmony 3 Release Notes
 
