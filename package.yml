@@ -27,7 +27,7 @@ package:
       version: "v1.2.0"
     - name: "wireless_pic32cxbz_wbz"
       type: "package"
-      version: "Thread_Updates"      
+      version: "v1.3.1"      
     - name: "wolfssl"
       type: "package"
       version: "v5.4.0"
