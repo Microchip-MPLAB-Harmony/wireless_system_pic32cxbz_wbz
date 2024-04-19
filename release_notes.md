@@ -3,6 +3,29 @@
 
 # Microchip MPLAB® Harmony 3 Release Notes
 
+## Harmony 3 Wireless system services for the PIC32CXBZ family v1.6.0
+
+
+### New Features
+- BLE Provisioning service for Thread.
+
+### Bug fixes and Improvements
+- None
+
+### Known Issues and Limitations
+- None
+
+### Development Tools
+
+- [MPLABÂ® X IDE v6.20](https://www.microchip.com/mplab/mplab-x-ide)
+- MPLABÂ® X IDE plug-ins:
+- MPLABÂ® Code Configurator (MCC) `v5.5.0`
+- [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
+- **PIC32CXBZ2 Family - DFP 1.3.238 or above version**
+
+------------------------------------------------------------------------------------------------------
+# Microchip MPLAB® Harmony 3 Release Notes
+
 ## Harmony 3 Wireless system services for the PIC32CXBZ family v1.5.1
 
 

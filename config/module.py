@@ -53,6 +53,8 @@ def loadModule():
         execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')
         # Thread CoAP Application Service
         execfile(Module.getPath() + '/config/module_thread_coap.py')
+        # BLE Thread Provisioning Service
+        execfile(Module.getPath() + '/config/module_ble_provision.py')
     if( processor in pic32cx_bz3_family):
         # app timer service
         execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
@@ -63,4 +65,4 @@ def loadModule():
         # temp sensor service
         execfile(Module.getPath() + '/config/module_temp_sensor.py')
         # ble ota application service
-        execfile(Module.getPath() + '/config/module_ble_ota.py')		
+        execfile(Module.getPath() + '/config/module_ble_ota.py')        
