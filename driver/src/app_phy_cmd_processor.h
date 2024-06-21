@@ -142,7 +142,9 @@ void appPhyCmdProcessor_CmdDoneFail(uint8_t err_code);
 void appPhyCmdProcessor_PrintReturnCode(uint8_t status);
 void appPhyCmdProcessor_calculateDevicePerfParams(void);
 void appPhyCmdProcessor_SetModeFlags(bool enterDM, bool enterPTM, bool enterCTM, bool enterThruputTM, bool enterPerTM, bool thruputCb, bool perTM);
-
+#if defined(ENABLE_DEVICE_DEEP_SLEEP)
+void idlePeriodicTestMode(void);
+#endif
     /* Provide C++ Compatibility */
 #ifdef __cplusplus
 }

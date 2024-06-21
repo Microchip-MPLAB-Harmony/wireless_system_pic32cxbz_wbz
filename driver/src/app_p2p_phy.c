@@ -45,6 +45,9 @@
 // *****************************************************************************
 
 #include "definitions.h"
+#if defined(RF215V3)
+#include "config/default/driver/IEEE_802154_PHY/phy/at86rf215/inc/tal_multi_trx.h"
+#endif
 // *****************************************************************************
 // *****************************************************************************
 // Section: Macros
@@ -64,7 +67,11 @@ APP_NWK_PARAM appNwkParam;
 DEVICE_TABLE deviceTable[NUM_OF_DEVICES]; 
 bool dataModeTimerStartFlag;
 static PHY_FrameInfo_t txFrameInfo;
-
+#if defined(ENABLE_DEVICE_DEEP_SLEEP)
+static bool phyBusy = false;
+static bool deviceCanSleep = false;
+static bool APP_ReadyToSleep(uint32_t *sleepDuration);
+#endif
 // *****************************************************************************
 // *****************************************************************************
 // Section: Type Definitions
@@ -101,6 +108,9 @@ bool app_P2P_Phy_Init(void){
             sysTimerFlag.singleShotSysTimer = 10000U;
             sysTimerFlag.throughputSysTimer = 1000000U;
             appNwkParam.nPerTestPackets = 100U;
+#if defined(RF215V3)
+            PHY_SetMod(RF09);
+#endif
             return true;   
         }
 }
@@ -178,7 +188,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
                     timerDestroy = timerDestroy;
                     if((len > (uint8_t)(aMaxPHYPacketSize - appNwkParam.frameOverHead)) && (len != 0U))
                     {
+#if defined(ENABLE_CONSOLE)
 //                        SYS_CONSOLE_MESSAGE("\r\n Data Limit reached/not within range\r\n");
+#endif
                         payloadMaxLimitFlag = true;
                         if(len > 232U)
                         {
@@ -201,13 +213,17 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             else if(((contDataModeflag == false) && (payloadMaxLimitFlag == true) && (payloadFragmentLimit == false)))
             {
-//                SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
-//                SYS_CONSOLE_PRINT("\r\n No of Bytes sent in 1st iteration %d\n",(aMaxPHYPacketSize - appNwkParam.frameOverHead));
+#if defined(ENABLE_CONSOLE)
+               SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
+               SYS_CONSOLE_PRINT("\r\n No of Bytes sent in 1st iteration %d\n",(aMaxPHYPacketSize - appNwkParam.frameOverHead));
+#endif
                 app_P2P_Phy_ParseUserdefinedData(readBytesConsole, (aMaxPHYPacketSize - appNwkParam.frameOverHead));    
             }
             else if((payloadMaxLimitFlag == true) && (payloadFragmentLimit == true))
             {
+#if defined(ENABLE_CONSOLE)
                 SYS_CONSOLE_PRINT("\r\n Payload length is beyond Limit, Discarding..\r\n");
+#endif
                 appModeSwitch->msgId = (uint8_t)APP_RESUME_DATA_MODE;
                 osalResult = OSAL_QUEUE_Send(&appData.appQueue, appModeSwitch, 0);
             }
@@ -218,7 +234,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             else
             { 
-//                SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
+#if defined(ENABLE_CONSOLE)
+               SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
+#endif
                 app_P2P_Phy_ParseUserdefinedData(readBytesConsole, len);
             }
             osalResult = osalResult;
@@ -246,7 +264,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
         {
             payloadMaxLimitFlag = false;
             PAL_TimerDelay(10000);
+#if defined(ENABLE_CONSOLE)
             SYS_CONSOLE_PRINT("\r\n No of Bytes sent in 2nd iteration %d\n",(len - (uint8_t)(aMaxPHYPacketSize - appNwkParam.frameOverHead)));
+#endif
             app_P2P_Phy_ParseUserdefinedData((readBytesConsole + (aMaxPHYPacketSize - appNwkParam.frameOverHead)), (len - (uint8_t)(aMaxPHYPacketSize - appNwkParam.frameOverHead)));     
             break;
         }
@@ -258,7 +278,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
 
             if((len > (uint8_t)(aMaxPHYPacketSize - appNwkParam.frameOverHead)) && (len != 0U))
             {
+#if defined(ENABLE_CONSOLE)
 //                SYS_CONSOLE_MESSAGE("\r\n Data Limit reached\r\n");
+#endif
                 payloadMaxLimitFlag = true;
                 if(len > 232U)
                 {
@@ -267,13 +289,17 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             if((contDataModeflag == true) && (payloadMaxLimitFlag == true) && (payloadFragmentLimit == false))
             {
-//                SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
-                SYS_CONSOLE_PRINT("\r\n No of Bytes sent in 1st iteration %d\n",(aMaxPHYPacketSize - appNwkParam.frameOverHead));
+#if defined(ENABLE_CONSOLE)
+            //    SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
+               SYS_CONSOLE_PRINT("\r\n No of Bytes sent in 1st iteration %d\n",(aMaxPHYPacketSize - appNwkParam.frameOverHead));
+#endif
                 app_P2P_Phy_ParseUserdefinedData(readBytesConsole, (aMaxPHYPacketSize - appNwkParam.frameOverHead));
             }
             else if((payloadMaxLimitFlag == true) && (payloadFragmentLimit == true))
             {
+#if defined(ENABLE_CONSOLE)
                 SYS_CONSOLE_PRINT("\r\n Payload length is beyond Limit, Discarding..\r\n");
+#endif
                 appModeSwitch->msgId = (uint8_t)APP_RESUME_DATA_MODE;
                 osalResult = OSAL_QUEUE_Send(&appData.appQueue, appModeSwitch, 0);
                 osalResult = osalResult;
@@ -286,7 +312,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             else
             { 
+#if defined(ENABLE_CONSOLE)
 //                SYS_CONSOLE_PRINT("\r\n No of Bytes %d\n",len);
+#endif
                 app_P2P_Phy_ParseUserdefinedData(readBytesConsole, len);
             }
             }
@@ -296,6 +324,16 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
                                         
         case APP_SYSTIMER_START_PERIODIC_TEST_MODE:
         {
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+            if (deviceCanSleep == true) 
+            {
+                PHY_TrxSleep(SLEEP_MODE_1);
+                APP_Msg_T sleepReq;
+                sleepReq.msgId = APP_DEVICE_SLEEP;
+
+                (void) OSAL_QUEUE_Send(&appData.appQueue, &sleepReq, 0);
+            } else
+#endif
             uint8_t temp = 0;
             memset(appModeSwitch->msgData, 0, sizeof(appModeSwitch->msgData));
             sysTimerFlag.sysTimerPeriodicTestModeHandle = SYS_TIME_CallbackRegisterUS(&app_P2P_Phy_systimerCallbackTestMode, (uintptr_t)&temp, sysTimerFlag.periodicSysTimer, SYS_TIME_SINGLE); 
@@ -307,7 +345,9 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             }
             else
             {
+#if defined(ENABLE_CONSOLE)
                 // SYS_CONSOLE_PRINT("\r\nTimer Started with period %x\r\n",sysTimerFlag.periodicSysTimer);
+#endif
             }
             break;
         }
@@ -349,18 +389,206 @@ void app_P2P_Phy_TaskHandler(APP_Msg_T *appModeSwitch){
             appPacketDisplay(appModeSwitch);
             break;
         }
-                    
+#ifdef ENABLE_DEVICE_DEEP_SLEEP       
+        case APP_DEVICE_SLEEP:
+        {
+            Handle_DeviceSleep();
+        }
+            break;
+#endif           
         default:
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_MESSAGE("\r\nIDLE MODE\r\n");
+#endif
             break; 
         }
                     
     }
 }
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
 
+typedef __PACKED_STRUCT phy_ds_param{
+    uint32_t channel;
+    uint32_t channelPage;
+    uint32_t srcPanId;
+    uint32_t dstPanId;
+    uint32_t srcAddress;
+    uint32_t srcAddrMode;
+    uint32_t dstAddress;
+    uint32_t dstAddrMode;
+    uint32_t txPowerDBm;
+    uint32_t txPower;
+    uint32_t unicastFlagPredefData;
+    uint32_t unicastFlagUserDefData;
+    uint32_t pibAttributeStatus;
+    uint32_t edScan;
+    uint32_t cca;
+    uint32_t csma;
+    uint32_t PromiscuousMode;
+    uint32_t frameRetry;
+    uint32_t maxBE;
+    uint32_t minBE;
+    uint32_t ackReq;
+    uint32_t frameType;
+    uint32_t frameOverHead;
+    uint32_t txStatusFrameSent;
+    uint32_t txDoneCbStatus;
+    uint64_t extendedSrcAddress;
+    uint64_t ieeeAddress;
+    uint64_t extendedDstAddress;
+    uint64_t dstIeeeAddress;
+    uint64_t nPacketsSent;
+    uint64_t nBytesSent;
+    uint64_t nPacketsRcvdAck;
+    uint64_t nPerTestPackets;
+
+}
+PHY_Ds_Param_t;
+static PHY_Ds_Param_t __attribute__((persistent)) mdsParam;
+static PHY_Ds_Param_t param1;
+static void memcpy4ByteAligned(void* outbuf, void* inbuf, uint16_t length) {
+    static uint16_t mod_size;
+    static uint16_t size;
+    static uint16_t k;
+    uint32_t* src = (uint32_t*) inbuf;
+    uint32_t* dst = (uint32_t*) outbuf;
+
+    mod_size = (length % 4U);
+    // total_length is in multiple of 4
+    if (mod_size != 0U) {
+        size = length + 4U - mod_size;
+    } else {
+        size = length;
+    }
+
+    size = size >> 2;
+    for (k = 0; k < size; k++) {
+        *dst = *src;
+        src++;
+        dst++;
+    }
+}
+
+static void PHY_ReadyToDeepSleep(void) {
+    PHY_Ds_Param_t param;
+    PHY_Retval_t pibStatus = PHY_FAILURE;
+
+    param.channelPage = appNwkParam.channelPage;
+    param.dstAddress = appNwkParam.dstAddress;
+
+    
+    pibStatus = PHY_PibGet(macPANId, (uint8_t *) & appNwkParam.srcPanId);
+    param.srcPanId = (uint32_t) appNwkParam.srcPanId;
+
+    pibStatus = PHY_PibGet(macShortAddress, (uint8_t *) & appNwkParam.srcAddress);
+    param.srcAddress = (uint32_t) appNwkParam.srcAddress;
+
+    pibStatus = PHY_PibGet(macIeeeAddress, (uint8_t *) & appNwkParam.ieeeAddress);
+    param.ieeeAddress = appNwkParam.ieeeAddress;
+
+    uint8_t channelBeforeSleep;
+    pibStatus = PHY_PibGet(phyCurrentChannel, &channelBeforeSleep);
+    param.channel = (uint32_t) channelBeforeSleep;
+
+    memcpy4ByteAligned(&mdsParam, &param, ((uint16_t)sizeof (mdsParam)));
+    (void) pibStatus;
+
+}
+
+static void PHY_WakeUpFromDeepSleep(void) {
+
+    memcpy4ByteAligned(&param1, &mdsParam, ((uint16_t)sizeof (mdsParam)));
+
+    appNwkParam.channel = param1.channel;
+    appNwkParam.channelPage = param1.channelPage;
+    appNwkParam.dstAddress = param1.dstAddress;
+
+    PibValue_t pibValue;
+    PHY_Retval_t pibStatus = PHY_FAILURE;
+
+    pibValue.pib_value_8bit = appNwkParam.channel;
+    pibStatus = PHY_PibSet(phyCurrentChannel, &pibValue);
+    SYS_CONSOLE_PRINT("INSIDE WAKEUP %d",appNwkParam.channel);
+    
+    pibValue.pib_value_8bit = appNwkParam.channelPage;
+    pibStatus = PHY_PibSet(phyCurrentPage, &pibValue);
+
+    pibValue.pib_value_16bit = param1.srcAddress;
+    pibStatus = PHY_PibSet(macShortAddress, &pibValue);
+
+    pibValue.pib_value_64bit = param1.ieeeAddress;
+    pibStatus = PHY_PibSet(macIeeeAddress, &pibValue);
+
+    pibValue.pib_value_16bit = param1.srcPanId;
+    pibStatus = PHY_PibSet(macPANId, &pibValue);
+
+    (void) pibStatus;
+}
+void retainParams(void)
+{
+    PHY_WakeUpFromDeepSleep();
+}
+void PHY_Wakeup(void) {
+    /* Retrieve MAC Parameters from Retention RAM after Deepsleep wakeup*/
+    PHY_WakeUpFromDeepSleep();
+}
+
+#endif
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+
+void Handle_DeviceSleep(void) 
+{
+    uint32_t sleepDuration;
+    if (APP_ReadyToSleep(&sleepDuration)) 
+    {
+        /* Enter system sleep mode */
+        DEVICE_EnterDeepSleep(true, sleepDuration);
+    }
+
+}
+
+
+static bool APP_ReadyToSleep(uint32_t *sleepDuration) 
+{
+    bool sleep = false;
+
+    if (deviceCanSleep) {
+        if ((bool) (PHY_ReadyToSleep())) {
+            *sleepDuration = SLEEP_DURATION_MS;
+            sleep = true;
+        }
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+        else {
+            APP_Msg_T sleepReq;
+            sleepReq.msgId = APP_DEVICE_SLEEP;
+            PHY_TrxSleep(SLEEP_MODE_1);
+            (void) OSAL_QUEUE_Send(&appData.appQueue, &sleepReq, 0);
+        }
+#endif
+
+    }
+    return sleep;
+}
+
+uint32_t PHY_ReadyToSleep(void) {
+    uint32_t sleepTime = 0;
+    PHY_TrxStatus_t trxStatus = PHY_GetTrxStatus();
+    if (phyBusy || (trxStatus != PHY_TRX_SLEEP)) {
+        sleepTime = 0;
+    }
+    else {
+        sleepTime = 1UL;
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+        PHY_ReadyToDeepSleep();
+#endif
+    }
+    return sleepTime;
+}
+#endif
 void appPacketDisplay(APP_Msg_T *appMess)
 {
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_MESSAGE("\r\n RX PKT\r\n");
     SYS_CONSOLE_MESSAGE("\r\n");
     for(uint8_t i = 1; i <= appMess->msgData[0]; i++)
@@ -368,11 +596,14 @@ void appPacketDisplay(APP_Msg_T *appMess)
         SYS_CONSOLE_PRINT("%c",appMess->msgData[i]);
     }
     SYS_CONSOLE_MESSAGE("\r\n");
+#endif
 }
 //If device index is 0xff/255 all the valid entries in the table will be displayed
 void app_P2P_Phy_GetDeviceTableInfo(uint8_t dev_index)
 {  
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n Device Index is : %d\n",dev_index);
+#endif
     if(dev_index != 15U)
     {
             if(deviceTable[dev_index].valid == true)
@@ -437,7 +668,9 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.srcAddress = pibValue.pib_value_16bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n Source Address : %d \r\n",appNwkParam.srcAddress);
+#endif        
         }
     
 
@@ -453,7 +686,9 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.srcPanId = pibValue.pib_value_16bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n PAN ID : %x \r\n",appNwkParam.srcPanId);
+#endif
         }
 
     
@@ -476,39 +711,24 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.cca.ccaMode = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n CCA mode : %d \r\n",appNwkParam.cca.ccaMode);
+#endif
         }
     }
-    
-    if((appnwkParam->channel < 0xbU) || (appnwkParam->channel > 0x1aU))
-    {
-        appStatesParam.appOpStates = APP_PIB_ATTR_OUT_OF_RANGE; 
-        return appStatesParam.appOpStates;
-    }
-    else
-    {
-        pibValue.pib_value_8bit = appnwkParam->channel;
-        attributeStatus = PHY_PibSet(phyCurrentChannel, &pibValue);
-        if(attributeStatus != PHY_SUCCESS)
-        {
-            appPhyCmdProcessor_PhyStatusPrint(attributeStatus);
-            appStatesParam.appOpStates = APP_PIB_ATTR_SET_FAILURE; 
-            return appStatesParam.appOpStates;
-        }
-        attributeStatus = PHY_PibGet(phyCurrentChannel,(uint8_t *)&pibValue);
-        if(attributeStatus == PHY_SUCCESS)
-       {
-        appNwkParam.channel = pibValue.pib_value_8bit;
-//    SYS_CONSOLE_PRINT("\r\n Channel : %d \r\n",appNwkParam.channel);
-       }
-    }
-
+        
+#if !defined(RF215V3) 
+#if defined(PHY_AT86RF212B)
+    if((appnwkParam->channelPage != 0x0U) && (appnwkParam->channelPage != 0x2U) && (appnwkParam->channelPage != 0x5U) && (appnwkParam->channelPage != 0x10U) && (appnwkParam->channelPage != 0x11U) && (appnwkParam->channelPage != 0x12U) && (appnwkParam->channelPage != 0x13U)) 
+#else
     if((appnwkParam->channelPage != 0x0U) && (appnwkParam->channelPage != 0x2U) && (appnwkParam->channelPage != 0x10U) && (appnwkParam->channelPage != 0x11U))
+#endif
     {
         appStatesParam.appOpStates = APP_PIB_ATTR_OUT_OF_RANGE; 
         return appStatesParam.appOpStates;
     }
     else
+#endif
     {
         pibValue.pib_value_8bit = appnwkParam->channelPage;
         attributeStatus = PHY_PibSet(phyCurrentPage, &pibValue);
@@ -522,9 +742,47 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.channelPage = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
 //        SYS_CONSOLE_PRINT("\r\n Channel pg : %d \r\n",appNwkParam.channelPage);
+#endif
         }
     }
+        
+#if !defined(RF215V3)
+#if defined(PHY_AT86RF212B)
+    if((appnwkParam->channel < 0x0U) || (appnwkParam->channel > 0x0aU))   
+#else
+    if((appnwkParam->channel < 0xbU) || (appnwkParam->channel > 0x1aU))
+#endif
+    {
+        appStatesParam.appOpStates = APP_PIB_ATTR_OUT_OF_RANGE; 
+        return appStatesParam.appOpStates;
+    }
+    else
+#endif
+    {
+#ifdef RF215V3
+        pibValue.pib_value_16bit = appnwkParam->channel;
+#else
+        pibValue.pib_value_8bit = appnwkParam->channel;
+#endif
+        attributeStatus = PHY_PibSet(phyCurrentChannel, &pibValue);
+        if(attributeStatus != PHY_SUCCESS)
+        {
+            appPhyCmdProcessor_PhyStatusPrint(attributeStatus);
+            appStatesParam.appOpStates = APP_PIB_ATTR_SET_FAILURE; 
+            return appStatesParam.appOpStates;
+        }
+        attributeStatus = PHY_PibGet(phyCurrentChannel,(uint8_t *)&pibValue);
+        if(attributeStatus == PHY_SUCCESS)
+       {
+        appNwkParam.channel = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
+//    SYS_CONSOLE_PRINT("\r\n Channel : %d \r\n",appNwkParam.channel);
+#endif
+       }
+    }
+
         pibValue.pib_value_64bit = appnwkParam->ieeeAddress;
         attributeStatus = PHY_PibSet(macIeeeAddress,&pibValue);
     if(attributeStatus != PHY_SUCCESS)
@@ -537,8 +795,10 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
     if(attributeStatus == PHY_SUCCESS)
     {
         appNwkParam.extendedSrcAddress = appNwkParam.ieeeAddress = pibValue.pib_value_64bit;
+#if defined(ENABLE_CONSOLE)
 //        SYS_CONSOLE_PRINT("%8x",appNwkParam.ieeeAddress);
 //        memcpy (&appNwkParam.ieeeAddress, &pibValue.pib_value_64bit, sizeof(pibValue.pib_value_64bit));
+#endif
     }
     
     if((appnwkParam->maxBE < 0x3U) || (appnwkParam->maxBE > 0x8U) )
@@ -560,7 +820,9 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.maxBE = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n MAX BE : %d \r\n",appNwkParam.maxBE);
+#endif
         }
     }
     
@@ -583,11 +845,18 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
         {
             appNwkParam.minBE = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n MIN BE : %d \r\n",appNwkParam.minBE);
+#endif
         }
     }
-
-    if((appnwkParam->txPowerDBm < -12) || (appnwkParam->txPowerDBm > 14))
+#if defined(RF215V3)
+    if((appnwkParam->txPowerDBm < -17) || (appnwkParam->txPowerDBm > 14))    
+#elif defined(PHY_AT86RF212B)
+    if((appnwkParam->txPowerDBm < -25) || (appnwkParam->txPowerDBm > 11)) 
+#else
+   if((appnwkParam->txPowerDBm < -12) || (appnwkParam->txPowerDBm > 14))   
+#endif
     {
         appStatesParam.appOpStates = APP_PIB_ATTR_OUT_OF_RANGE; 
         return appStatesParam.appOpStates;
@@ -608,7 +877,9 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
        {
             appNwkParam.txPower = pibValue.pib_value_8bit;	
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n TX Power : %d \r\n",appNwkParam.txPowerDBm);
+#endif
        }        
     }
 
@@ -635,9 +906,13 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
         if(attributeStatus == PHY_SUCCESS)
        {
             appNwkParam.frameRetry = pibValue.pib_value_8bit;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n MIN BE : %d \r\n",appNwkParam.minBE);
+#endif
        }       
     }
+
+#ifdef PROMISCUOUS_MODE
     
     pibValue.pib_value_bool = appnwkParam->PromiscuousMode;
     attributeStatus = PHY_PibSet(macPromiscuousMode, &pibValue);
@@ -649,8 +924,11 @@ APP_OP_STATE_T app_P2P_Phy_SetNWKParams(APP_NWK_PARAM *appnwkParam)
     attributeStatus = PHY_PibGet(macPromiscuousMode,(uint8_t *)&pibValue);
     if(attributeStatus == PHY_SUCCESS){
         appNwkParam.PromiscuousMode = pibValue.pib_value_bool;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\n MIN BE : %d \r\n",appNwkParam.minBE);
+#endif
     }
+#endif
     
     if(appnwkParam->csma.csmaBackoff > 5U)
     {
@@ -726,7 +1004,9 @@ void app_P2P_Phy_TestMode(APP_TEST_MODE_T testStates)
         }
         default:
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_MESSAGE("\r\nNo test mode selected\r\n");
+#endif
             break;
         }
     }
@@ -743,13 +1023,17 @@ void app_P2P_Phy_TransmitPredefinedData(bool isAckReq)
     {
         if(deviceTable[DEST_DEV_INDEX].valid == true)
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Unicast Data to first device in device table\n");
+#endif            
             appNwkParam.unicastFlagPredefData = true;
             app_P2P_Phy_TransmitFrame(txData, MAX_PAYLOAD_SIZE, 1, seqNum++, true, true, true);
         }    
         else
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif  
             appNwkParam.unicastFlagPredefData = false;
             app_P2P_Phy_TransmitFrame(txData, MAX_PAYLOAD_SIZE, 0xf, seqNum++, false, false, false);
         } 
@@ -758,13 +1042,17 @@ void app_P2P_Phy_TransmitPredefinedData(bool isAckReq)
     {
         if(deviceTable[DEST_DEV_INDEX].valid == true)
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Unicast Data to first device in device table\n");
+#endif  
             appNwkParam.unicastFlagPredefData = true;
             app_P2P_Phy_TransmitFrame(txData, MAX_PAYLOAD_SIZE, 1, seqNum++, true, false, true);
         }    
         else
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif  
             appNwkParam.unicastFlagPredefData = false;
             app_P2P_Phy_TransmitFrame(txData, MAX_PAYLOAD_SIZE, 0xf, seqNum++, false, false, false);
         } 
@@ -786,7 +1074,9 @@ void app_P2P_Phy_ParseUserdefinedData(uint8_t *userData, uint8_t userDataLen){
         txBufferLen = userDataLen - 4U;
         if(((*userData == 102U) && (*(userData+1) == 102U)) || ((*userData == 70U) && (*(userData+1) == 70U)))
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif  
             appNwkParam.unicastFlagUserDefData = false;
             app_P2P_Phy_TransmitFrame(txBuffer, txBufferLen, 0xfU, seqNum++, false, false, false);               
         }
@@ -797,29 +1087,39 @@ void app_P2P_Phy_ParseUserdefinedData(uint8_t *userData, uint8_t userDataLen){
             {
                 if(deviceTable[deviceIndex].valid == true)
                 {
+#if defined(ENABLE_CONSOLE)
 //                    SYS_CONSOLE_PRINT("\r Unicast Data to device %d in device table\n",deviceIndex);
+#endif  
                     appNwkParam.unicastFlagUserDefData = true;
                     app_P2P_Phy_TransmitFrame(txBuffer, txBufferLen, deviceIndex, seqNum++, true, true, true);
                 }
                 else
                 {
+#if defined(ENABLE_CONSOLE)
 //                    SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif  
                     appNwkParam.unicastFlagUserDefData = false;
                     app_P2P_Phy_TransmitFrame(txBuffer, txBufferLen, 0xfU, seqNum++, false, false, false);
                 }
             }
             else
             {
+#if defined(ENABLE_CONSOLE)
 //                SYS_CONSOLE_PRINT("\r Device Index Out of Range\n");
+#endif  
                 if(deviceTable[DEST_DEV_INDEX].valid == true)
                 {
+#if defined(ENABLE_CONSOLE)
 //                    SYS_CONSOLE_PRINT("\r Unicast Data to first device in device table\n");
+#endif  
                     appNwkParam.unicastFlagUserDefData = true;
                     app_P2P_Phy_TransmitFrame(txBuffer, txBufferLen, DEST_DEV_INDEX, seqNum++, true, true, true);
                 }
                 else
                 {
+#if defined(ENABLE_CONSOLE)
 //                    SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif
                     appNwkParam.unicastFlagUserDefData = false;
                     app_P2P_Phy_TransmitFrame(txBuffer, txBufferLen, 0xfU, seqNum++, false, false, false);
                 } 
@@ -830,13 +1130,17 @@ void app_P2P_Phy_ParseUserdefinedData(uint8_t *userData, uint8_t userDataLen){
     {
         if(deviceTable[DEST_DEV_INDEX].valid == true)
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Unicast Data to first device in device table\n");
+#endif           
             appNwkParam.unicastFlagUserDefData = true;
             app_P2P_Phy_TransmitFrame(userData, userDataLen, DEST_DEV_INDEX, seqNum++, true, true, true);
         }
         else
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r Broadcast Data\n");
+#endif
             app_P2P_Phy_TransmitFrame(userData, userDataLen, 0xfU, seqNum++, false, false, false);
         }          
     }
@@ -950,9 +1254,13 @@ void app_P2P_Phy_TransmitFrame(uint8_t *payload, uint8_t payloadLength, uint8_t 
 	}
 	framePtr -= (uint8_t)FCF_LEN;
 	convert_16_bit_to_byte_array(frameControlField, framePtr);
+//#if !defined(RF215V3)
 	/* First element shall be length of PHY frame. */
 	framePtr--;
 	*framePtr = frameLength;
+// #else
+//     txFrameInfo.len_no_crc = (uint16_t)(frameLength-FCF_LEN);
+// #endif
 	/* Finished building of frame. */
 	txFrameInfo.mpdu = framePtr;
 	appNwkParam.txStatusFrameSent = PHY_TxFrame(&txFrameInfo, appNwkParam.csma.csmaMode, frameRetry);
@@ -963,11 +1271,15 @@ void app_P2P_Phy_TransmitFrame(uint8_t *payload, uint8_t payloadLength, uint8_t 
         {
             modeSwitchFlag.perTestMode = true;
         }
+#if defined(ENABLE_CONSOLE)
 //        SYS_CONSOLE_PRINT("\r\nTX Done, PKT No. %d\r\n", msduHandle);
+#endif
     }
     else
     {
+#if defined(ENABLE_CONSOLE)
 //        SYS_CONSOLE_PRINT("\r\nPHY Busy, PKT No. %d\r\n", msduHandle);
+#endif
     } 
     app_P2P_Phy_appModePostDataTxSwitchHandler();
 }
@@ -981,7 +1293,9 @@ void app_P2P_Phy_setAddressModes(uint8_t srcAddressMode, uint8_t dstAddressMode)
     }
     else
     {
+#if defined(ENABLE_CONSOLE)
         SYS_CONSOLE_PRINT("\r\n Address Mode Out of Range\r\n");
+#endif
     }
     
     if((srcAddressMode == (uint8_t)FCF_SHORT_ADDR) && (dstAddressMode == (uint8_t)FCF_SHORT_ADDR))
@@ -1006,7 +1320,9 @@ void app_P2P_Phy_setFrameType(uint8_t frameType)
     }
     else
     {
+#if defined(ENABLE_CONSOLE)
         SYS_CONSOLE_PRINT("\r\n FrameType Out of Range\r\n");
+#endif
     }
 }
 
@@ -1023,18 +1339,24 @@ void PHY_TxDoneCallback(PHY_Retval_t status, PHY_FrameInfo_t *frame)
     {
         if((appNwkParam.txDoneCbStatus == PHY_SUCCESS) && ((appNwkParam.unicastFlagUserDefData == true) || (appNwkParam.unicastFlagPredefData == true)))
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r\nACK RCVD for PKT: %d\r\n", frame->mpdu[3]);
+#endif            
             appNwkParam.nPacketsRcvdAck += 1U;
             deviceTable[SOURCE_DEV_INDEX].txPacketCnt += 1U;
         }
         else
         {
+#if defined(ENABLE_CONSOLE)
 //            SYS_CONSOLE_PRINT("\r\nNo ACK for PKT: %d\r\n", frame->mpdu[3]);
+#endif  
         }
     }
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\nTXPKTCNT: ");
 //    SYS_CONSOLE_PRINT("%8x\n",deviceTable[SOURCE_DEV_INDEX].txPacketCnt);
 //    SYS_CONSOLE_MESSAGE("\r\n");
+#endif   
     app_P2P_Phy_appModePostDataTxDoneCbSwitchHandler();
 }
 
@@ -1057,14 +1379,16 @@ void PHY_RxFrameCallback(PHY_FrameInfo_t *rxFrame)
     // Free-up the buffer which was used for reception once the frame is extracted.
 	bmm_buffer_free(rxFrame->buffer_header);
     payloadLength = payloadLength - appNwkParam.frameOverHead;
-//    SYS_CONSOLE_PRINT("\r\nRXPKT <pktno: %d>\n", seqNumber);
-//    SYS_CONSOLE_PRINT("\r\nLen %d\r\n",payloadLength);
-//    SYS_CONSOLE_PRINT("\r\n");
-//    for(uint8_t i = 0; i<payloadLength; i++)
-//    {
-//        SYS_CONSOLE_PRINT("%c",recBuffer[i]);
-//    }
-//    SYS_CONSOLE_MESSAGE("\n"); 
+//#if defined(ENABLE_CONSOLE)
+    SYS_CONSOLE_PRINT("\r\nRXPKT <pktno: %d>\n", seqNumber);
+    SYS_CONSOLE_PRINT("\r\nLen %d\r\n",payloadLength);
+    SYS_CONSOLE_PRINT("\r\n");
+    for(uint8_t i = 0; i<payloadLength; i++)
+    {
+        SYS_CONSOLE_PRINT("%c",recBuffer[i]);
+    }
+    SYS_CONSOLE_MESSAGE("\n"); 
+//#endif
     deviceTable[SOURCE_DEV_INDEX].rxPacketCnt  +=  1U;
     deviceTable[SOURCE_DEV_INDEX].lqi = LQI;
     deviceTable[SOURCE_DEV_INDEX].rssiVal = recRSSI;
@@ -1076,11 +1400,13 @@ void PHY_RxFrameCallback(PHY_FrameInfo_t *rxFrame)
         }
         osalResult = OSAL_QUEUE_Send(&appData.appQueue, p_appMes, 0);     
         osalResult = osalResult;
+#if defined(ENABLE_CONSOLE)
 //    SYS_CONSOLE_PRINT("\r\nLQI:%i", LQI);    
 //    SYS_CONSOLE_PRINT("\r\nRSSI:%i", recRSSI);
 //    SYS_CONSOLE_PRINT("\r\nPKTCNT:");
 //    SYS_CONSOLE_PRINT("%8x\n",deviceTable[SOURCE_DEV_INDEX].rxPacketCnt);
 //    SYS_CONSOLE_MESSAGE("\r\n");
+#endif
 }
 
 /** 
@@ -1094,11 +1420,16 @@ void app_P2P_Phy_ConfigDataReception(void)
    #ifdef PROMISCUOUS_MODE
        PibValue_t pibVal;
        PHY_Retval_t retVal;
+#ifdef RF215V3
+       if(appNwkParam.PromiscuousMode == true)
+#endif
+       {
        appNwkParam.PromiscuousMode = true;
        pibVal.pib_value_bool = true;
        retVal = PHY_ConfigRxPromiscuousMode(true);
        retVal = PHY_PibSet(macPromiscuousMode, &pibVal);
        retVal = retVal;
+       }
    #endif
    /*RX_AACK_ON Mode is enabled if Promiscuous Mode is not used,else RX is switched on in RX_ON Mode*/
    rxStatus = PHY_RxEnable(PHY_STATE_RX_ON); 
@@ -1181,6 +1512,9 @@ void app_P2P_Phy_appModePostDataTxSwitchHandler(void)
     }
     else if((modeSwitchFlag.enterDataMode == false) && (modeSwitchFlag.enterContTestMode == false) && (modeSwitchFlag.enterPeriodicTestMode == true) && (modeSwitchFlag.enterThroughputTestMode == false) && (modeSwitchFlag.enterPerTestMode == false))
     {
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+        deviceCanSleep = true;
+#endif
         p_appModes->msgId = (uint8_t)APP_SYSTIMER_START_PERIODIC_TEST_MODE;
         osalResult = OSAL_QUEUE_Send(&appData.appQueue, p_appModes, 0);
     }
@@ -1298,8 +1632,27 @@ APP_NWK_PARAM *app_P2P_Phy_AssignNWKParams(void)
         APP_NWK_PARAM *pAppNwkParam;
         pAppNwkParam = &appnwkparam;
         appnwkparam.srcPanId = (uint16_t)SRC_PAN_ID;
+#if defined(RF215V3)
+        if(trx_id == RF24)
+        {
+            appnwkparam.channel = CHANNEL_TRANSMIT_RECEIVE_2_4_GHZ;
+        }
+        else
+        {
+            appnwkparam.channel = CHANNEL_TRANSMIT_RECEIVE_SUB_GHZ;
+        }
+        if(trx_id == RF24)
+        {
+            appnwkparam.channelPage = CHANNEL_PAGE_TRANSMIT_RECEIVE_2_4_GHZ;
+        }
+        else
+        {
+            appnwkparam.channelPage = CHANNEL_PAGE_TRANSMIT_RECEIVE_SUB_GHZ;
+        }
+#else
         appnwkparam.channel = CHANNEL_TRANSMIT_RECEIVE;
         appnwkparam.channelPage = CHANNEL_PAGE_TRANSMIT_RECEIVE;
+#endif
         appnwkparam.cca.ccaMode = CCA_MODE;
         appnwkparam.txPowerDBm = TRANSMIT_POWER;
         appnwkparam.srcAddress = (uint16_t)SRC_ADDR;

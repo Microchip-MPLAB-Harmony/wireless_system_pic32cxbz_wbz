@@ -44,7 +44,9 @@
 #include <errno.h>
 #include <limits.h>
 #include "definitions.h"
-
+#if defined(RF215V3)
+#include "config/default/driver/IEEE_802154_PHY/phy/at86rf215/inc/tal_multi_trx.h"
+#endif
 //SYS_TIME_RESULT timerDestroyDataModeStatus, timerDestroyContTestModeStatus, timerDestroyPeriodicTestModeStatus;
 SYSTIMER_FLAGS sysTimerFlag;
 MODE_SWITCH_FLAGS modeSwitchFlag;
@@ -109,6 +111,11 @@ static void phy_ConfigAntennaDiversity(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, ch
 static void phy_ConfigRxRPCMode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void update_PER_test_packets(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void throughput_timer_update(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+#if defined(RF215V3)
+static void phy_pibsetTrxId(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void phy_pibgetTrxId(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void phy_setMod(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+#endif
 //CMD descriptor table definition
 static const SYS_CMD_DESCRIPTOR PhyCmdsTbl[] =
 {
@@ -167,6 +174,11 @@ static const SYS_CMD_DESCRIPTOR PhyCmdsTbl[] =
     {"configAntennaDiversity",phy_ConfigAntennaDiversity,"Configure the Antenna Diversity\r\n"},
     {"updateThroughputTime",throughput_timer_update,"Update Throughput Timer\r\n"},
     {"updatePERTestPacketsCnt",update_PER_test_packets,"Update PER test Packets\r\n"},
+#if defined(RF215V3)
+    {"setTrxId",phy_pibsetTrxId,"set PIB Value\r\n"},
+    {"getTrxId",phy_pibgetTrxId,"set PIB Value\r\n"},
+    {"setMod",phy_setMod, "set Modulation--0-FSK/1-OFDM/2-OQPSK/3-LEG_OQPSK\r\n"},
+#endif
 };
 
 
@@ -203,8 +215,17 @@ static void data_mode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
         } 
     }
 }
-
-
+#if defined(ENABLE_DEVICE_DEEP_SLEEP)
+void idlePeriodicTestMode(void)
+{
+    SYS_CONSOLE_PRINT("\r\n Timer set to %u\r\n",sysTimerFlag.periodicSysTimer);
+    app_P2P_Phy_stopActiveModes();
+    appPhyCmdProcessor_SetModeFlags(false,true,false,false,false,false,false);
+    PAL_TimerDelay(1500000);
+    appPeriodTestMode.devPerformanceParam.isModeActive = true;
+    app_P2P_Phy_appModeSwitchHandler();
+}
+#endif
 static void periodic_test_mode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {    
     if(argc < 2)
@@ -508,8 +529,13 @@ static void phy_pibgetChannel(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv
     appPhyCmdProcessor_PhyStatusPrint(status);
     if(status == PHY_SUCCESS)
     {
+#if !defined(RF215V3)
       SYS_CONSOLE_PRINT("\r\n Channel  - 0x%x\n ",pibValue.pib_value_8bit); 
       appNwkParam.channel = pibValue.pib_value_8bit;
+#else
+      SYS_CONSOLE_PRINT("\r\n Channel  - 0x%x\n ",pibValue.pib_value_16bit); 
+      appNwkParam.channel = pibValue.pib_value_16bit;     
+#endif
     }
     else
     {
@@ -522,6 +548,7 @@ static void phy_pibsetChannel(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv
 {    
     PHY_Retval_t status;
     uint8_t retcode, attribute_val = 0U;
+    uint16_t attribute_val_16 = 0U;
     PibValue_t pibValue;
     if(argc<2)
     {
@@ -531,23 +558,41 @@ static void phy_pibsetChannel(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv
     }
     if(appPhyCmdProcessor_StrToUint8(argv[1], &attribute_val))
     {
-        if((attribute_val < 11U) || (attribute_val > 26U))
+#if defined(RF215V3)
+    if((attribute_val < 0U) || (attribute_val > 26U))  
+#elif defined(PHY_AT86RF212B)
+    if((attribute_val < 0U) || (attribute_val > 10U))
+#else
+    if((attribute_val < 11U) || (attribute_val > 26U))
+#endif
         {
             retcode = ERR_PARAM_OUT_OF_RANGE;
             appPhyCmdProcessor_PrintReturnCode(retcode);
             return;
         }
     }
+#if !defined(RF215V3)
     pibValue.pib_value_8bit = attribute_val;
+#else
+    pibValue.pib_value_16bit = (uint16_t)attribute_val;
+#endif
     status = PHY_PibSet(phyCurrentChannel, &pibValue);
     appPhyCmdProcessor_PhyStatusPrint(status);
     if(status == PHY_SUCCESS)
     {
+#if !defined(RF215V3)
       if(PHY_PibGet(phyCurrentChannel,&attribute_val) == PHY_SUCCESS)
+#else
+      if(PHY_PibGet(phyCurrentChannel,(uint8_t*)&attribute_val_16) == PHY_SUCCESS)   
+#endif
       {
-          SYS_CONSOLE_PRINT("\r\n Channel  - 0x%x\n ",attribute_val); 
+#if !defined(RF215V3)
+    SYS_CONSOLE_PRINT("\r\n Channel  - 0x%x\n ",attribute_val); 
+#else
+    SYS_CONSOLE_PRINT("\r\n Channel  - 0x%x\n ",attribute_val_16);       
+#endif
       }
-      appNwkParam.channel = attribute_val;
+      appNwkParam.channel = (uint16_t)attribute_val;
     }
    
 }
@@ -583,7 +628,13 @@ static void phy_pibsetChannelPage(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
     }
     if(appPhyCmdProcessor_StrToUint8(argv[1], &attribute_val))
     {
-        if((attribute_val != 0x0U) && (attribute_val != 0x2U) && (attribute_val != 0x10U) && (attribute_val != 0x11U))
+#if defined(RF215V3)
+    if((attribute_val != 0x0U) && (attribute_val != 0x2U) && (attribute_val != 0x5U) && (attribute_val != 0x6U) && (attribute_val != 0x7U) && (attribute_val != 0x8U) && (attribute_val != 0x9U) && (attribute_val != 0x0AU) && (attribute_val != 0x10U) && (attribute_val != 0x12U))    
+#elif defined(PHY_AT86RF212B)
+    if((attribute_val != 0x0U) && (attribute_val != 0x2U) && (attribute_val != 0x5U) && (attribute_val != 0x10U) && (attribute_val != 0x11U) && (attribute_val != 0x12U) && (attribute_val != 0x13U)) 
+#else
+    if((attribute_val != 0x0U) && (attribute_val != 0x2U) && (attribute_val != 0x10U) && (attribute_val != 0x11U))
+#endif
         {
             retcode = ERR_PARAM_OUT_OF_RANGE;
             appPhyCmdProcessor_PrintReturnCode(retcode);
@@ -603,7 +654,70 @@ static void phy_pibsetChannelPage(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
     }
    
 }
+#if defined(RF215V3)
+static void phy_pibsetTrxId(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+//    PHY_Retval_t status;
+    uint8_t retcode;
+    trx_id_t trxid;
+    if(argc<2)
+    {
+        retcode = ERR_MISSING_PARAM;
+       appPhyCmdProcessor_PrintReturnCode(retcode);
+        return;
+    }
 
+    if(appPhyCmdProcessor_StrToUint8(argv[1], &trxid))
+    {
+        trx_id = trxid;
+//        if(app_P2P_Phy_Init() == true)
+//        {     
+//            if(trx_id == 0)
+//            {
+//                SYS_CONSOLE_MESSAGE("\r\n Init success with RF00 Sub GHz\r\n");
+//            }
+//            else
+//            {
+//                SYS_CONSOLE_MESSAGE("\r\n Init success with RF24 2.4 GHz\r\n");
+//            }
+//        }
+//        else
+//        {
+//            if(trx_id == 0)
+//            {
+//                SYS_CONSOLE_MESSAGE("\r\n Init failed with RF00 Sub GHz\r\n");
+//            }
+//            else
+//            {
+//                SYS_CONSOLE_MESSAGE("\r\n Init failed with RF24 2.4 GHz\r\n");
+//            }
+//        }
+    }
+}
+
+static void phy_pibgetTrxId(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    SYS_CONSOLE_PRINT("\r\n Transceiver ID %d\r\n",trx_id);
+}
+
+static void phy_setMod(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    PHY_Retval_t status;
+    uint8_t retcode;
+    uint8_t attr_val_8 = 0U;
+    PibValue_t pibValue;
+    if(argc<2)
+    {
+        retcode = ERR_MISSING_PARAM;
+        appPhyCmdProcessor_PrintReturnCode(retcode);
+        return;
+    }
+    if(appPhyCmdProcessor_StrToUint8HexIp(argv[1],&attr_val_8))
+    {
+        PHY_SetMod(trx_id, attr_val_8);
+    }
+}
+#endif
 static void phy_pibgetPanId(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {  
     PHY_Retval_t status;
@@ -865,7 +979,13 @@ static void phy_pibsetTxPwr(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
     }
     if(appPhyCmdProcessor_StrToInt8(argv[1], &attribute_val))
     {
-        if((attribute_val < -12) || (attribute_val > 14))
+#if defined(RF215V3)
+    if((attribute_val < -17) || (attribute_val > 14))      
+#elif defined(PHY_AT86RF212B)
+    if((attribute_val < -25) || (attribute_val > 11))    
+#else
+    if((attribute_val < -12) || (attribute_val > 14))    
+#endif
         {
             retcode = ERR_PARAM_OUT_OF_RANGE;
             appPhyCmdProcessor_PrintReturnCode(retcode);
@@ -1130,7 +1250,13 @@ static void phy_ccaperform(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
     }
     if(appPhyCmdProcessor_StrToUint8(argv[1], &phyChannel))
     {
-        if((phyChannel < 11U) || (phyChannel > 26U))
+#if defined(RF215V3)
+    if((phyChannel < 0U) || (phyChannel > 26U))  
+#elif defined(PHY_AT86RF212B)
+    if((phyChannel < 0U) || (phyChannel > 10U))
+#else
+    if((phyChannel < 11U) || (phyChannel > 26U))
+#endif
         {
             retcode = ERR_PARAM_OUT_OF_RANGE;
             appPhyCmdProcessor_PrintReturnCode(retcode);
@@ -1271,6 +1397,7 @@ static void phy_ConfigAntennaDiversity(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, ch
     //To be implemented
 }
 
+
 static void phy_ConfigRxRPCMode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     PHY_Retval_t retVal = PHY_FAILURE;
@@ -1300,6 +1427,7 @@ static void phy_ConfigRxRPCMode(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** ar
         //do nothing
     }
 }
+
 
 static void getAddressingModes(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
@@ -1643,6 +1771,11 @@ void appPhyCmdProcessor_PhyTrxStatusPrint(PHY_TrxStatus_t status){
         case 0x08:
             SYS_CONSOLE_PRINT("PHY_TRX_OFF\r\n");
             break;
+#ifdef RF215V3
+        case 0x09:
+            SYS_CONSOLE_PRINT("PHY_TRX_OFF\r\n");
+            break;       
+#endif
         case 0x16:
             SYS_CONSOLE_PRINT("PHY_RX_ON\r\n");
             break;

@@ -40,7 +40,15 @@
 /*
  * TAL PIB default values
  */
-#define CHANNEL_TRANSMIT_RECEIVE            ${CHANNEL}U
+#if defined(RF215V3)
+    #define CHANNEL_TRANSMIT_RECEIVE_SUB_GHZ            ${CHANNEL}U  
+    #define CHANNEL_TRANSMIT_RECEIVE_2_4_GHZ            ${CHANNEL}U  
+#elif defined(PHY_AT86RF212B)
+    #define CHANNEL_TRANSMIT_RECEIVE            ${CHANNEL}U
+#else
+   #define CHANNEL_TRANSMIT_RECEIVE            ${CHANNEL}U  
+#endif
+
 #define SRC_ADDR                            0x${MAC_SHORT_ADDRESS}U
 #define IEEE_ADDR                           0x${MAC_EXTENDED_ADDRESS}U
 #define SRC_PAN_ID                          0x${MAC_PAN_ID}U
@@ -55,6 +63,8 @@
 #define DST_IEEE_ADDR                       0x${EXTENDED_DESTINATION_ADDRESS}U
 #define NUM_OF_DEVICES                      ${NUM_OF_DEVICES}U
 #define ED_SCAN_DURATION                    ${ED_SCAN_DURATION}U
+#define CSMA_MODE		                    ${CSMA_MODE}
+
 /* === TYPES =============================================================== */
 
 <#if Promiscuous_Mode == true>

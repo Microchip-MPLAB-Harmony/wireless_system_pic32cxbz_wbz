@@ -30,7 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "definitions.h"
-#include "pal.h"
+#include "config/default/driver/IEEE_802154_PHY/pal/inc/pal.h"
 #include "../../stack_config.h"
 
 #ifdef	__cplusplus
@@ -42,7 +42,14 @@ extern "C" {
 //Transeiver Configuration
 #define TRANSMITTER_ENABLED
 #define DST_PAN_ID      0xCAFEU
-#define CHANNEL_PAGE_TRANSMIT_RECEIVE	0U
+#if defined(RF215V3)
+    #define CHANNEL_PAGE_TRANSMIT_RECEIVE_SUB_GHZ            2U 
+    #define CHANNEL_PAGE_TRANSMIT_RECEIVE_2_4_GHZ            0U 
+#elif defined(PHY_AT86RF212B)
+    #define CHANNEL_PAGE_TRANSMIT_RECEIVE            0U
+#else
+   #define CHANNEL_PAGE_TRANSMIT_RECEIVE            0U  
+#endif
 #define ACK_REQ			1
 #define ENABLE_ANTENNA_1                          (1U)
 #define ENABLE_ANTENNA_2                          (2U)
@@ -54,7 +61,7 @@ extern "C" {
 #define FRAME_OVERHEAD_EXTENDED_DST_ADDR_MODE (18U)
 #define TX_BUFFER_SIZE   120U
 #define MAX_PAYLOAD_SIZE 116U
-#define CSMA_MODE		CSMA_UNSLOTTED
+// #define CSMA_MODE		CSMA_UNSLOTTED
 #define SOURCE_DEV_INDEX 0
 #define DEST_DEV_INDEX 1
 /*Application Operating Modes*/
@@ -128,7 +135,11 @@ typedef struct
 
 typedef struct
 {
+#ifdef RF215V3
+    uint16_t channel;
+#else
     uint8_t channel;
+#endif
     uint8_t channelPage;
     uint16_t srcPanId;
     uint16_t dstPanId;
@@ -207,6 +218,7 @@ typedef enum APP_Mode_T
     APP_SYSTIMER_EXPIRY_PERIODIC_TEST_MODE,
     APP_SYSTIMER_EXPIRY_DATA_ENTRY,
     APP_PACKET_DISP_EVENT,
+    APP_DEVICE_SLEEP,
             
 }APP_Mode_T;
 
@@ -243,6 +255,11 @@ void app_P2P_Phy_stopActiveModes(void);
 void app_P2P_Phy_appModePostDataTxDoneCbSwitchHandler(void);
 void app_P2P_Phy_appModePostDataTxSwitchHandler(void);
 APP_NWK_PARAM *app_P2P_Phy_AssignNWKParams(void);
+#ifdef ENABLE_DEVICE_DEEP_SLEEP
+uint32_t PHY_ReadyToSleep(void);
+void Handle_DeviceSleep(void);
+void retainParams(void);
+#endif
 void appPacketDisplay(APP_Msg_T *appMess);
 /**
 * @brief Converts a 16-Bit value into  a 2 Byte array

@@ -148,12 +148,48 @@ void APP_Tasks ( void )
         {
             bool appInitialized = true;
             //appData.appQueue = xQueueCreate( 10, sizeof(APP_Msg_T) );
+#if defined(ENABLE_DEVICE_DEEP_SLEEP)  
+    DEVICE_DeepSleepWakeSrc_T wakeupSrc;
+    DEVICE_GetDeepSleepWakeUpSrc(&wakeupSrc);
+   
+    if(wakeupSrc == DEVICE_DEEP_SLEEP_WAKE_NONE  ||  wakeupSrc == DEVICE_DEEP_SLEEP_WAKE_MCLR)
+#endif
+    {
+#if defined(RF215V3)
+            bool temp, temp1 = false;
+            PHY_ConfigTrxId(RF24);
+            temp = app_P2P_Phy_Init();
+            PHY_ConfigTrxId(RF09);
+            temp1 = app_P2P_Phy_Init();
+            if((temp != true) || (temp1 != true))
+#else
             if(app_P2P_Phy_Init() != true)
+#endif
             {
                 
                 appInitialized = false;
             }
-
+    }
+#ifdef ENABLE_DEVICE_DEEP_SLEEP  
+    else
+    {
+        
+#if defined(RF215V3)
+            bool temp, temp1 = false;
+            PHY_ConfigTrxId(RF24);
+            temp = app_P2P_Phy_Init();
+            PHY_ConfigTrxId(RF09);
+            temp1 = app_P2P_Phy_Init();
+            if((temp != true) || (temp1 != true))
+#else
+            if(app_P2P_Phy_Init() != true)
+#endif
+            {
+                appInitialized = false;
+            }
+              retainParams();
+    }
+ #endif
             if (appInitialized)
             {
 

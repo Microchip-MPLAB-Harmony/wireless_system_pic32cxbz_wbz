@@ -29,7 +29,7 @@ p2pPhyAppMenu.setVisible(True)
 global p2pPhyAppMenuChannel
 p2pPhyAppMenuChannel = p2pPhyApp.createIntegerSymbol("CHANNEL", p2pPhyAppMenu)
 p2pPhyAppMenuChannel.setLabel("CHANNEL")
-p2pPhyAppMenuChannel.setMin(11)
+p2pPhyAppMenuChannel.setMin(0)
 p2pPhyAppMenuChannel.setMax(26)
 p2pPhyAppMenuChannel.setDefaultValue(11)
 

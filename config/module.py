@@ -30,13 +30,19 @@ def loadModule():
                           'PIC32CX1012BZ24032',
                           'WBZ451',
                           'WBZ450',
+                          'WBZ451H',
                           }
     pic32cx_bz3_family = {'PIC32CX5109BZ31048',
                           'PIC32CX5109BZ31032',
                           'WBZ351',
                           'WBZ350',
                           }                          
-
+    atsam_family       = {'ATSAML21J18B',
+	                      'ATSAMD21G18A',
+						  'ATSAMR21G18A',
+						  'ATSAMR30G18A',
+						 }
+                         
     processor = Variables.get('__PROCESSOR')
     print('processor={}'.format(processor))
 
@@ -49,12 +55,13 @@ def loadModule():
         execfile(Module.getPath() + '/config/module_ble_virtual_sniffer.py')
         # ble ota application service
         execfile(Module.getPath() + '/config/module_ble_ota.py')
-        # IEEE 802.15.4 P2P PHY Application
-        execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')
         # Thread CoAP Application Service
         execfile(Module.getPath() + '/config/module_thread_coap.py')
         # BLE Thread Provisioning Service
         execfile(Module.getPath() + '/config/module_ble_provision.py')
+    if((processor in pic32cx_bz2_family) or (processor in atsam_family)):
+	    # IEEE 802.15.4 P2P PHY Application
+        execfile(Module.getPath() + '/config/module_15_4_p2p_phy_app.py')		
     if( processor in pic32cx_bz3_family):
         # app timer service
         execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
@@ -65,4 +72,4 @@ def loadModule():
         # temp sensor service
         execfile(Module.getPath() + '/config/module_temp_sensor.py')
         # ble ota application service
-        execfile(Module.getPath() + '/config/module_ble_ota.py')        
+        execfile(Module.getPath() + '/config/module_ble_ota.py')		
