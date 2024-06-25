@@ -33,7 +33,7 @@
 
 
 ### New Features
-- BLE Provisioning service for Thread.
+- BLE Provisioning service for Thread and MAC
 
 ### Bug fixes and Improvements
 - Changes in CoAP APP component as per Thread SDK release v1.1.0.
@@ -46,8 +46,8 @@
 - [MPLABÂ® X IDE v6.20](https://www.microchip.com/mplab/mplab-x-ide)
 - MPLABÂ® X IDE plug-ins:
 - MPLABÂ® Code Configurator (MCC) `v5.5.0`
-- [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
-- **PIC32CXBZ2 Family - DFP 1.3.238 or above version**
+- [MPLABÂ® XC32 C/C++ Compiler v4.40](https://www.microchip.com/mplab/compilers)
+- **PIC32CXBZ2 Family - DFP 1.4.243**
 
 ------------------------------------------------------------------------------------------------------
 

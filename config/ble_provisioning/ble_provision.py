@@ -34,6 +34,12 @@ def enableOrDisableThreadFiles(value):
        appThreadCommonSourceFile.setEnabled(False)
        appThreadAppHeaderFile.setEnabled(False)
        appThreadAppSourceFile.setEnabled(False)
+       
+def enableOrDisableMacFiles(value):
+    if (value):
+       appProvMacSourceFile.setEnabled(True)
+    else:
+       appProvMacSourceFile.setEnabled(False)
 
 def configForThread():
     res = Database.activateComponents(["OPEN_THREAD"])
@@ -47,8 +53,22 @@ def configForThread():
        temSymbol.setReadOnly(True)
        temsymbol1.setReadOnly(True)
     threaddeviceconfig.setVisible(True)
+    macdeviceconfig.setVisible(False)
+    
+def configForMac():
+    res = Database.activateComponents(["IEEE_802154_MAC"])
+    appProvPhySourceFile.setEnabled(False)
+    appProvMacSourceFile.setEnabled(True)
+    enableOrDisableMacFiles(True)
+    enableOrDisableThreadFiles(False)
+    threadsedenableconfig.setVisible(False)
 
-def updateParamters():
+def configForPhy():
+    threaddeviceconfig.setVisible(False)
+    macdeviceconfig.setVisible(False)
+    threadsedenableconfig.setVisible(False)
+
+def updateParameters():
     trpComponent = Database.getComponentByID("PROFILE_TRSP")
     if (trpComponent != None):
         if (trpComponent.getSymbolValue("TRSP_BOOL_SERVER") == False):
@@ -67,30 +87,40 @@ def updateParamters():
             advSrvDataVal = bleStackComponent.getSymbolByID('GAP_ADV_DATA_SERVICE_DATA')
             advSrvDataVal.setValue("FF03")
 
+
+global dependencylock
+dependencylock = 10
+
 def protocolConfigcallback(symbol,event):
     symbolID = event["id"]
     value = event["value"]
+
+    global dependencylock
     
+    if(dependencylock==10):
+        return
     if symbolID == "COMBO_APP_CONFIG":
         if value == 0:
             appProvPhySourceFile.setEnabled(True)
             appProvMacSourceFile.setEnabled(False)
             enableOrDisableThreadFiles(False)
-            Database.deactivateComponents(["OPEN_THREAD","IEEE_802154_MAC","BLE_STACK_LIB","PROFILE_TRSP"])
-            res = Database.activateComponents(["IEEE_802154_PHY","BLE_STACK_LIB","PROFILE_TRSP"])
+            Database.deactivateComponents(["OPEN_THREAD","IEEE_802154_MAC"])
+            res = Database.activateComponents(["IEEE_802154_PHY"])
             threaddeviceconfig.setVisible(False)
-            updateParamters()
+            macdeviceconfig.setVisible(False)
+            updateParameters()
         elif value == 1:
             appProvPhySourceFile.setEnabled(False)
             appProvMacSourceFile.setEnabled(True)
             enableOrDisableThreadFiles(False)
-            Database.deactivateComponents(["OPEN_THREAD","BLE_STACK_LIB","PROFILE_TRSP"])
-            res = Database.activateComponents(["IEEE_802154_MAC","BLE_STACK_LIB","PROFILE_TRSP"])
+            Database.deactivateComponents(["OPEN_THREAD"])
+            res = Database.activateComponents(["IEEE_802154_MAC","LIB_WOLFCRYPT"])
             threaddeviceconfig.setVisible(False)
-            updateParamters()
+            macdeviceconfig.setVisible(True)
+            updateParameters()
         elif value == 2:
-            Database.deactivateComponents(["IEEE_802154_MAC","BLE_STACK_LIB","PROFILE_TRSP"])
-            res = Database.activateComponents(["OPEN_THREAD","BLE_STACK_LIB","PROFILE_TRSP"])
+            Database.deactivateComponents(["IEEE_802154_MAC"])
+            res = Database.activateComponents(["OPEN_THREAD"])
             appProvPhySourceFile.setEnabled(False)
             appProvMacSourceFile.setEnabled(False)
             enableOrDisableThreadFiles(True)
@@ -101,15 +131,18 @@ def protocolConfigcallback(symbol,event):
                temSymbol.setReadOnly(True)
                temsymbol1.setReadOnly(True)
             threaddeviceconfig.setVisible(True)
-            updateParamters()
+            macdeviceconfig.setVisible(False)
+            updateParameters()
     
     elif symbolID == "THREAD_DEVICE_CONFIG":
         if value == 0:
             Database.setSymbolValue("OPEN_THREAD","OPEN_THREAD_DEVICE_ROLE_CONFIG_1",0)
+            threadsedenableconfig.setVisible(False)
             threadsedenableconfig.setValue(False)
             threadsedenableconfig.setReadOnly(True)
         elif value == 1:
             Database.setSymbolValue("OPEN_THREAD","OPEN_THREAD_DEVICE_ROLE_CONFIG_1",1)
+            threadsedenableconfig.setVisible(True)
             threadsedenableconfig.setValue(False)
             threadsedenableconfig.setReadOnly(False)
     
@@ -120,51 +153,89 @@ def protocolConfigcallback(symbol,event):
         elif value == False:
             Database.setSymbolValue("OPEN_THREAD","OPEN_THREAD_MTD_SLEEP_ENABLE",False)
             appIdleTaskSourceFile.setEnabled(False)
+            
+    elif symbolID == "MAC_DEVICE_CONFIG":
+        if value == 0:
+            Database.setSymbolValue("IEEE_802154_MAC","MAC_DEVICE_TYPE",0)
+        elif value == 1:
+            Database.setSymbolValue("IEEE_802154_MAC","MAC_DEVICE_TYPE",1)
 
 
 def onAttachmentConnected(source, target):
-    updateParamters()
+    updateParameters()
+    localComponent = source["component"]
+    remoteComponent = target["component"]
+    remoteID = remoteComponent.getID()
+    connectID = source["id"]
+    
+    if(remoteID == "IEEE_802154_MAC"):
+        localComponent.setDependencyEnabled("Ieee802154MacDependency",True)
+        localComponent.setDependencyEnabled("openthread_Dependency",False)
+        Database.activateComponents(["IEEE_802154_MAC"])
+        Database.DeactivateComponents(["OPEN_THREAD"])
+        
+    elif(remoteID == "OPEN_THREAD"):
+        localComponent.setDependencyEnabled("openthread_Dependency",True)
+        localComponent.setDependencyEnabled("Ieee802154MacDependency",False)
+        Database.activateComponents(["OPEN_THREAD"])
+        Database.DeactivateComponents(["IEEE_802154_MAC"])
 
 def onAttachmentDisconnected(source, target):
+    localComponent = source["component"]
     remoteComponent = Database.getComponentByID("OPEN_THREAD")
     if (remoteComponent):
         symbol = remoteComponent.getSymbolByID("OPEN_THREAD_DEVICE_ROLE_CONFIG_1")
         symbol.setReadOnly(False)
+        if(protocoltypeconfig.getValue() != "THREAD"):
+            localComponent.setDependencyEnabled("openthread_Dependency",False)
+    remoteComponent1 = Database.getComponentByID("IEEE_802154_MAC")
+    if (remoteComponent1):
+        symbol = remoteComponent1.getSymbolByID("MAC_DEVICE_TYPE")
+        symbol.setReadOnly(False)
+        if(protocoltypeconfig.getValue() != "15_4_MAC"):
+            localComponent.setDependencyEnabled("Ieee802154MacDependency",False)
+  
 
 def finalizeComponent(provBle):
     result = Database.connectDependencies([['PROFILE_TRSP', 'BLE_TRS_Denpendency', 'SERVICE_TRS', 'BLE_TRS_Capability']])
     result = Database.connectDependencies([['ble_prov', 'PDS_Module_Dependency', 'pdsSystem', 'pds_Command_Capability']])
     result = Database.connectDependencies([['ble_prov', 'PIC32CX_BZ2_DevSupport_Dependency', 'pic32cx_bz2_devsupport', 'Device_Support_Capability']])
     result = Database.connectDependencies([['SERVICE_TRS', 'BLE_STACK_Dependency', 'BLE_STACK_LIB', 'BLE_Stack_Capability']])
-    updateParamters()
-
-        
-
+    updateParameters()
 
 
 def instantiateComponent(provBle):
+    global dependencylock
     print('ble_prov')
     configName = Variables.get("__CONFIGURATION_NAME")
     print configName
     processor = Variables.get("__PROCESSOR")
     print processor
+    provBle.setDependencyEnabled("openthread_Dependency",False)
+    provBle.setDependencyEnabled("Ieee802154MacDependency",False)
     
     res = Database.activateComponents(["PROFILE_TRSP","SERVICE_TRS","pdsSystem","pic32cx_bz2_devsupport","BLE_STACK_LIB","IEEE_802154_PHY"])
 
     print('Config Name: {} processor: {}'.format(configName, processor))
     
+    dependencylock = 10
     global protocoltypeconfig
     protocoltypeconfig = provBle.createKeyValueSetSymbol("COMBO_APP_CONFIG", None)
     protocoltypeconfig.setLabel("Combo APP Config")
     protocoltypeconfig.addKey("15_4_PHY", "15_4_PHY", "15_4_PHY")
     protocoltypeconfig.addKey("15_4_MAC", "15_4_MAC", "15_4_MAC")
     protocoltypeconfig.addKey("THREAD", "THREAD", "THREAD")
-    protocoltypeconfig.setDefaultValue(2)
+    if "OPEN_THREAD" in Database.getActiveComponentIDs():
+        protocoltypeconfig.setValue(2)
+    elif "IEEE_802154_MAC" in Database.getActiveComponentIDs():
+        protocoltypeconfig.setValue(1)
+    else:
+        protocoltypeconfig.setValue(0)
     protocoltypeconfig.setOutputMode("Value")
     protocoltypeconfig.setDisplayMode("Description")
     protocoltypeconfig.setDescription("protocol type Configuration")
     protocoltypeconfig.setVisible(True)
-    protocoltypeconfig.setReadOnly(True)
+    protocoltypeconfig.setReadOnly(False)
     protocoltypeconfig.setDependencies(protocolConfigcallback,["COMBO_APP_CONFIG"])
     
     global threaddeviceconfig
@@ -179,11 +250,33 @@ def instantiateComponent(provBle):
     threaddeviceconfig.setVisible(False)
     threaddeviceconfig.setDependencies(protocolConfigcallback,["THREAD_DEVICE_CONFIG"])
     
+    global macdeviceconfig
+    macdeviceconfig = provBle.createKeyValueSetSymbol("MAC_DEVICE_CONFIG", protocoltypeconfig)
+    macdeviceconfig.setLabel("MAC Device Role")
+    macdeviceconfig.addKey("FFD", "FFD", "FFD")
+    macdeviceconfig.addKey("RFD", "RFD", "RFD")  
+    macComponent = Database.getComponentByID("IEEE_802154_MAC")
+    if (macComponent):
+        symbol = macComponent.getSymbolByID("MAC_DEVICE_TYPE")        
+        if (symbol):
+            value =symbol.getValue()
+            print("value:",value)
+            if(int(value)):
+                macdeviceconfig.setValue(1)
+            else:
+                macdeviceconfig.setValue(0)                              
+    macdeviceconfig.setVisible(True)
+    macdeviceconfig.setReadOnly(True)    
+    macdeviceconfig.setOutputMode("Value")
+    macdeviceconfig.setDisplayMode("Description")
+    macdeviceconfig.setDescription("MAC Device Role Configuration")
+    macdeviceconfig.setDependencies(protocolConfigcallback,["MAC_DEVICE_CONFIG"])
+    
     global threadsedenableconfig
     threadsedenableconfig = provBle.createBooleanSymbol("THREAD_SLEEP_ENABLE", protocoltypeconfig)
     threadsedenableconfig.setLabel("Enable As Sleep End Device")
     threadsedenableconfig.setDefaultValue(False)
-    threadsedenableconfig.setVisible(True)
+    threadsedenableconfig.setVisible(False) # make it visibility false here
     threadsedenableconfig.setDescription("Option to enable the device as SED")
     threadsedenableconfig.setReadOnly(True)
     threadsedenableconfig.setDependencies(protocolConfigcallback,["THREAD_SLEEP_ENABLE"])
@@ -308,6 +401,7 @@ def instantiateComponent(provBle):
     appThreadCommonHeaderFile.setType('HEADER')
     appThreadCommonHeaderFile.setEnabled(False)
     appThreadCommonHeaderFile.setMarkup(True)
+    
 
     global appThreadCommonSourceFile
     appThreadCommonSourceFile = provBle.createFileSymbol(None, None)
@@ -319,7 +413,7 @@ def instantiateComponent(provBle):
     appThreadCommonSourceFile.setType('SOURCE')
     appThreadCommonSourceFile.setEnabled(False)
     appThreadCommonSourceFile.setMarkup(True)
-
+   
     global appThreadAppHeaderFile
     appThreadAppHeaderFile = provBle.createFileSymbol(None, None)
     appThreadAppHeaderFile.setSourcePath('driver/templates/ble_prov/app_thread/app_thread.h.ftl')
@@ -329,7 +423,7 @@ def instantiateComponent(provBle):
     appThreadAppHeaderFile.setType('HEADER')
     appThreadAppHeaderFile.setEnabled(False)
     appThreadAppHeaderFile.setMarkup(True)
-
+      
     global appThreadAppSourceFile
     appThreadAppSourceFile = provBle.createFileSymbol(None, None)
     appThreadAppSourceFile.setSourcePath('driver/templates/ble_prov/app_thread/app_thread.c.ftl')
@@ -348,6 +442,13 @@ def instantiateComponent(provBle):
     appIdleTaskSourceFile.setDestPath('../../')
     appIdleTaskSourceFile.setType('SOURCE')
     appIdleTaskSourceFile.setEnabled(False)
+    dependencylock = 20
     
     #To configure for Thread
-    configForThread()
+    if "OPEN_THREAD" in Database.getActiveComponentIDs():
+        configForThread()
+    elif "IEEE_802154_MAC" in Database.getActiveComponentIDs():
+        configForMac()
+    else:
+        configForPhy()
+    
