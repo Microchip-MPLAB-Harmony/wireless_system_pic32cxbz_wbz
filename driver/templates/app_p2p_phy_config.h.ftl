@@ -63,7 +63,7 @@
 #define DST_IEEE_ADDR                       0x${EXTENDED_DESTINATION_ADDRESS}U
 #define NUM_OF_DEVICES                      ${NUM_OF_DEVICES}U
 #define ED_SCAN_DURATION                    ${ED_SCAN_DURATION}U
-#define CSMA_MODE		                    ${CSMA_MODE}
+#define CSMA_MODE		                    ${CSMA_Mode}
 
 /* === TYPES =============================================================== */
 
