@@ -25,10 +25,41 @@
 
 
 print('Load Module: Harmony Wireless FreeRTOS based SW timer service')
+pic32cx_bz2_family = {'PIC32CX1012BZ25048',
+                      'PIC32CX1012BZ25032',
+                      'PIC32CX1012BZ24032',
+                      'WBZ451',
+                      'WBZ450',
+                      'WBZ451H',
+                      }
+pic32cx_bz3_family = {'PIC32CX5109BZ31048',
+                      'PIC32CX5109BZ31032',
+                      'WBZ351',
+                      'WBZ350',
+                      }                          
+pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                      'PIC32CX2051BZ62064',
+                      'PIC32CX2051BZ66048',
+                      'WBZ651',
+                      'WBZ652',
+                      'WBZ653',
+                      }                          
+atsam_family       = {'ATSAML21J18B',
+                      'ATSAMD21G18A',
+					  'ATSAMR21G18A',
+					  'ATSAMR30G18A',
+					 }
+                         
+processor = Variables.get('__PROCESSOR')
+print('processor={}'.format(processor))
 
 appTimerComponent  = Module.CreateComponent('app_timer', 'APP_TIMER_SERVICE', '/Wireless/System Services/', 'config/app_timer/app_timer.py')
 appTimerComponent.setDisplayType('Software Timer Using FreeRTOS')
 appTimerComponent.addCapability('App_Timer_Capability', 'APP_TIMER_SERVICE', True)
-appTimerComponent.addDependency('PIC32CX_BZ2_DevSupport_Dependency', 'Device_Support', None, True, True)
-
+if( processor in pic32cx_bz2_family):
+	appTimerComponent.addDependency('PIC32CX_BZ2_DevSupport_Dependency', 'Device_Support', None, True, True)
+if( processor in pic32cx_bz3_family):
+	appTimerComponent.addDependency('PIC32CX_BZ3_DevSupport_Dependency', 'Device_Support', None, True, True)
+if( processor in pic32cx_bz6_family):
+	appTimerComponent.addDependency('PIC32CX_BZ6_DevSupport_Dependency', 'Device_Support', None, True, True)
 

@@ -97,12 +97,21 @@ def finalizeComponent(rgb_led):
                           'PIC32CX5109BZ31032',
                           'WBZ351',
                           'WBZ350',
-                          } 
+                          }
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          }                          
     processor = Variables.get("__PROCESSOR")
     if( processor in pic32cx_bz2_family):
         Database.connectDependencies([['rgb_led', 'RGB_LED_PWM_Dependency1', 'tc2', 'TC2_TMR']])
         Database.connectDependencies([['rgb_led', 'RGB_LED_PWM_Dependency2', 'tc3', 'TC3_TMR']])        
     if( processor in pic32cx_bz3_family):  
+        Database.connectDependencies([['rgb_led', 'RGB_LED_PWM_Dependency', 'tcc0', 'TCC0_PWM']])
+    if( processor in pic32cx_bz6_family):  
         Database.connectDependencies([['rgb_led', 'RGB_LED_PWM_Dependency', 'tcc0', 'TCC0_PWM']])
     print ('rgb_led_final')
             
@@ -128,7 +137,13 @@ def instantiateComponent(rgb_led):
                           'WBZ351',
                           'WBZ350',
                           }     
- 
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          } 
     deviceFamily = rgb_led.createStringSymbol("DEVICE_FAM", None)
     deviceFamily.setVisible(False)
     
@@ -163,7 +178,19 @@ def instantiateComponent(rgb_led):
         WOComment.setLabel("Note: On WBZ351 Curiosity Board, Red -> RB0, Green -> RB3, Blue -> RB5")         
         print ('rgb warning')
 
-  
+    if( processor in pic32cx_bz6_family):    
+        Database.activateComponents(["tcc0"])
+        tccInstanceName = rgb_led.createStringSymbol("TCC_INSTANCE", None)
+        tccInstanceName.setVisible(False)
+        deviceFamily.setValue("BZ6")
+        # WO configuration Warning status
+        WOComment = rgb_led.createCommentSymbol("TCC_WO_PIN_CONF", None)
+        WOComment.setVisible(True)
+        WOComment.setLabel("Warning!!! Configure TCC WO1 (Red), W02 (Green), WO4 (Blue) output pins in Pin Configuration ")
+        WOComment = rgb_led.createCommentSymbol("TCC_WO_PIN_CONF_1", None)
+        WOComment.setVisible(True)
+        WOComment.setLabel("Note: On WBZ653 Curiosity Board, Red -> RC7, Green -> RC10, Blue -> RE0")         
+        print ('rgb warning') 
    
     
     # Add rgb_led.c

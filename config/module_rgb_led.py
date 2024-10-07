@@ -31,3 +31,5 @@ if( processor in pic32cx_bz2_family):
     rgb_LedComponent.addDependency('RGB_LED_PWM_Dependency2', 'TMR', 'TC(Blue)', False, True)    
 if( processor in pic32cx_bz3_family):
     rgb_LedComponent.addDependency('RGB_LED_PWM_Dependency', 'PWM', 'TCC', False, True)    
+if( processor in pic32cx_bz6_family):
+    rgb_LedComponent.addDependency('RGB_LED_PWM_Dependency', 'PWM', 'TCC', False, True)        

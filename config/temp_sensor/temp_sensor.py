@@ -70,7 +70,13 @@ def instantiateComponent(temp_sensor):
                           'WBZ351',
                           'WBZ350',
                           }     
- 
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          }  
     deviceFamily = temp_sensor.createStringSymbol("DEVICE_FAMILY", None)
     deviceFamily.setVisible(False)
     
@@ -97,6 +103,17 @@ def instantiateComponent(temp_sensor):
         ADCComment = temp_sensor.createCommentSymbol("ADC_PIN_CONF_1_BZ3", None)
         ADCComment.setVisible(True)
         ADCComment.setLabel("Note: On WB351 Curiosity Board,MCP9700A Temp Sensor mapped to AN2 (PB6)")      
+        print ('temp sensor warning')
+
+    if( processor in pic32cx_bz6_family):    
+        deviceFamily.setValue("BZ6")
+        # ADC Pin mapping configuration Warning status
+        ADCComment = temp_sensor.createCommentSymbol("ADC_PIN_CONF_BZ6", None)
+        ADCComment.setVisible(True)
+        ADCComment.setLabel("Warning!!! Configure ADC Input Pin in Pin Configuration")
+        ADCComment = temp_sensor.createCommentSymbol("ADC_PIN_CONF_1_BZ6", None)
+        ADCComment.setVisible(True)
+        ADCComment.setLabel("Note: On WB653 Curiosity Board,MCP9700A Temp Sensor mapped to AN10 (PD4)")      
         print ('temp sensor warning')
         
     # Add temp_sensor.c

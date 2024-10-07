@@ -62,6 +62,9 @@
 <#if (DEVICE_FAMILY == "BZ3") >			
 #define ADC_VREF  (3.25)
 </#if>
+<#if (DEVICE_FAMILY == "BZ6") >			
+#define ADC_VREF  (3.27)
+</#if>
 
 #define ADC_MAX    4096
 

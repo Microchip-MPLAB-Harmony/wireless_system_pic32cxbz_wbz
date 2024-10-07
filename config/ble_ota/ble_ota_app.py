@@ -55,9 +55,9 @@ def update_BZparamters():
             advSrvDataEN = bleStackComponent.getSymbolByID('GAP_ADV_DATA_SERVICE_DATA_EN')
             advSrvDataEN.setValue(True)
             advSrvDataUUID = bleStackComponent.getSymbolByID('GAP_ADV_DATA_SERVICE_UUID')
-            advSrvDataUUID.setValue(0xFEDA)
+            advSrvDataUUID.setValue("FEDA")
             advSrvDataVal = bleStackComponent.getSymbolByID('GAP_ADV_DATA_SERVICE_DATA')
-            advSrvDataVal.setValue(0xFFFF)        
+            advSrvDataVal.setValue("FFFF")        
 
 def update_Bootloaderparamters():
     blComponent = Database.getComponentByID("BootloaderServices")
@@ -102,6 +102,34 @@ def instantiateComponent(ble_ota):
     print configName
     processor = Variables.get("__PROCESSOR")
     print processor
+
+    pic32cx_bz2_family = {'PIC32CX1012BZ25048',
+                          'PIC32CX1012BZ25032',
+                          'PIC32CX1012BZ24032',
+                          'WBZ451',
+                          'WBZ450',
+                          }
+    pic32cx_bz3_family = {'PIC32CX5109BZ31048',
+                          'PIC32CX5109BZ31032',
+                          'WBZ351',
+                          'WBZ350',
+                          }     
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          } 
+    deviceFamily = ble_ota.createStringSymbol("DEVICE_FAM", None)
+    deviceFamily.setVisible(False)
+    
+    if( processor in pic32cx_bz2_family):        
+        deviceFamily.setValue("BZ2")
+    if( processor in pic32cx_bz3_family):        
+        deviceFamily.setValue("BZ3")
+    if( processor in pic32cx_bz6_family):        
+        deviceFamily.setValue("BZ6")
 
     print('HarmonyCore.ENABLE_APP_FILE = {}'.format(str(Database.getSymbolValue("HarmonyCore", 'ENABLE_APP_FILE'))))
     print('HarmonyCore.ENABLE_OSAL = {}'.format(str(Database.getSymbolValue("HarmonyCore", 'ENABLE_OSAL'))))

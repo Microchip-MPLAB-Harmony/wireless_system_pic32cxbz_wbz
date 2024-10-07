@@ -60,6 +60,7 @@
 - RGB LED system service.
 - Temperature sensor system service
 - PIC32CXBZ3 Device Family is added
+- PIC32CXBZ6 Device Family is added
 
 ### Bug fixes and Improvements
 - None
@@ -75,6 +76,7 @@
 - [MPLABÂ® XC32 C/C++ Compiler v4.35](https://www.microchip.com/mplab/compilers)
 - **PIC32CXBZ2 Family - DFP 1.2.230 or above version**
 - **PIC32CXBZ3 Family - DFP 1.1.165 or above version**
+- **PIC32CXBZ6 Family - DFP 0.0.139 or above version**
 
 ------------------------------------------------------------------------------------------------------
 

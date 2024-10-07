@@ -56,6 +56,9 @@
 <#if (DEVICE_FAM == "BZ3") >			
 #include "peripheral/tcc/plib_${TCC_INSTANCE?lower_case}.h"
 </#if>
+<#if (DEVICE_FAM == "BZ6") >			
+#include "peripheral/tcc/plib_${TCC_INSTANCE?lower_case}.h"
+</#if>
 
 #include "math.h"
 
@@ -268,6 +271,9 @@ void RGB_LED_Off(void)
 <#if (DEVICE_FAM == "BZ3") >			
     ${TCC_INSTANCE?upper_case}_CompareStop();
 </#if>
+<#if (DEVICE_FAM == "BZ6") >			
+    ${TCC_INSTANCE?upper_case}_CompareStop();
+</#if>
 
     pwmStopped = true;
 }
@@ -312,6 +318,11 @@ static void RGB_LED_SetPwmChannelCompareValue(uint16_t r, uint16_t g, uint16_t b
 <#if (DEVICE_FAM == "BZ3") >			
     ${TCC_INSTANCE?upper_case}_CompareStart();
 </#if>	   
+
+<#if (DEVICE_FAM == "BZ6") >			
+    ${TCC_INSTANCE?upper_case}_CompareStart();
+</#if>	   
+
     pwmStopped = false;
   }
 
@@ -336,6 +347,12 @@ static void RGB_LED_SetPwmChannelCompareValue(uint16_t r, uint16_t g, uint16_t b
   ${TCC_INSTANCE?upper_case}_Compare24bitMatchSet(${TCC_INSTANCE?upper_case}_CHANNEL3,(uint32_t)g);
   ${TCC_INSTANCE?upper_case}_Compare24bitMatchSet(${TCC_INSTANCE?upper_case}_CHANNEL5,(uint32_t)b);
 </#if>  
+
+<#if (DEVICE_FAM == "BZ6") >			
+  ${TCC_INSTANCE?upper_case}_Compare24bitMatchSet(${TCC_INSTANCE?upper_case}_CHANNEL1,(uint32_t)r);
+  ${TCC_INSTANCE?upper_case}_Compare24bitMatchSet(${TCC_INSTANCE?upper_case}_CHANNEL2,(uint32_t)g);
+  ${TCC_INSTANCE?upper_case}_Compare24bitMatchSet(${TCC_INSTANCE?upper_case}_CHANNEL4,(uint32_t)b);
+</#if> 
 
 }
 #endif

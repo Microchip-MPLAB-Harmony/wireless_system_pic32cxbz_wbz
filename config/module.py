@@ -37,6 +37,13 @@ def loadModule():
                           'WBZ351',
                           'WBZ350',
                           }                          
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          }                          
     atsam_family       = {'ATSAML21J18B',
 	                      'ATSAMD21G18A',
 						  'ATSAMR21G18A',
@@ -72,4 +79,15 @@ def loadModule():
         # temp sensor service
         execfile(Module.getPath() + '/config/module_temp_sensor.py')
         # ble ota application service
-        execfile(Module.getPath() + '/config/module_ble_ota.py')		
+        execfile(Module.getPath() + '/config/module_ble_ota.py')
+    if( processor in pic32cx_bz6_family):
+        # app timer service
+        execfile(Module.getPath() + '/config/module_app_timer_freertos.py')
+        # rgb led service
+        execfile(Module.getPath() + '/config/module_rgb_led.py')
+        # ble virtual sniffer
+#        execfile(Module.getPath() + '/config/module_ble_virtual_sniffer.py')        
+        # temp sensor service
+        execfile(Module.getPath() + '/config/module_temp_sensor.py')
+        # ble ota application service
+        execfile(Module.getPath() + '/config/module_ble_ota.py')

@@ -59,7 +59,9 @@
 #include "ble_dis/ble_dis.h"
 #include "app_ble/app_ble_utility.h"
 #include "ble_dm/ble_dm.h"
-
+<#if (DEVICE_FAM == "BZ6") >
+#include "ble_util/mw_dfu.h"
+</#if> 
 // *****************************************************************************
 // *****************************************************************************
 // Section: Macros
@@ -91,8 +93,14 @@
 // *****************************************************************************
 static uint8_t s_OTAMode;
 static APP_BLE_ConnList_T *s_pOTAConnLink = NULL;
-static uint16_t s_connHandle;
+<#if (DEVICE_FAM == "BZ6") >
+static uint16_t s_connHandle, s_fwImageValidate = 0;
 
+#define APP_OTA_RES_SUCCESS 0x0000
+#define APP_OTA_RES_FAIL    0x0001
+<#else>
+static uint16_t s_connHandle;
+</#if> 
 
 // *****************************************************************************
 // *****************************************************************************
@@ -253,17 +261,37 @@ void APP_OTA_EvtHandler(BLE_OTAPS_Event_T *p_event)
             }
             else
 </#if>			
+            if (p_event->eventField.evtUpdateReq.fwImageFileType == BLE_OTAPS_IMG_FILE_TYPE_INT)
+            {
+                s_fwImageValidate = p_event->eventField.evtUpdateReq.fwImageCrc16;
+            }
+			else
+			{
+				result = APP_RES_INVALID_PARA;
+			}
+            
+            
+            {
+                APP_OTA_HDL_SetOTAMode(APP_OTA_MODE_OTA);
+                BLE_OTAPS_UpdateResponse(s_connHandle, true, &devInfo);
+                APP_OTA_HDL_Prepare(s_connHandle);
+            }            
+<#if (DEVICE_FAM == "BZ6") >
+<#else>
             {
                 BLE_OTAPS_UpdateResponse(s_connHandle, true, &devInfo);
             }            
+</#if>
         }
         break;
         
         case BLE_OTAPS_EVT_START_IND:
         {
             /* TODO: implement your application code.*/
+<#if (DEVICE_FAM != "BZ6") >
 			APP_OTA_HDL_SetOTAMode(APP_OTA_MODE_OTA);
             APP_OTA_HDL_Prepare(s_connHandle);
+</#if>
             APP_OTA_HDL_Start();            
         }
         break;
@@ -277,6 +305,32 @@ void APP_OTA_EvtHandler(BLE_OTAPS_Event_T *p_event)
         
         case BLE_OTAPS_EVT_COMPLETE_IND:
         {
+<#if (DEVICE_FAM == "BZ6") >			
+             if (p_event->eventField.evtCompleteInd.errStatus == APP_OTA_RES_SUCCESS)
+            {
+                if (MW_DFU_FwImageValidate(s_fwImageValidate) == APP_OTA_RES_SUCCESS)
+                {
+                    //After reset, the new FW will activate.
+                    if (MW_DFU_FwImageActivate() != APP_OTA_RES_SUCCESS)
+                    {
+                        BLE_OTAPS_CompleteResponse(false);
+                        APP_OTA_HDL_ErrorHandle(s_connHandle);
+                    }
+                    else
+                        BLE_OTAPS_CompleteResponse(true);
+                }
+                else
+                {
+                    BLE_OTAPS_CompleteResponse(false);
+                    APP_OTA_HDL_ErrorHandle(s_connHandle);
+                }
+            }
+            else
+            {
+                BLE_OTAPS_CompleteResponse(false);
+                APP_OTA_HDL_ErrorHandle(s_connHandle);
+            }
+<#else>        
             /* TODO: implement your application code.*/
             if (p_event->eventField.evtCompleteInd.errStatus == false)
             {
@@ -295,6 +349,7 @@ void APP_OTA_EvtHandler(BLE_OTAPS_Event_T *p_event)
             {
                 APP_OTA_HDL_ErrorHandle(s_connHandle);
             }            
+</#if>       
         }
         break;
         

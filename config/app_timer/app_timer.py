@@ -44,8 +44,32 @@ def onAttachmentDisconnected(source, target):
 
 def finalizeComponent(app_Timer_Component):
     print('App Timer -> finalizeComponent - {}'.format(str(app_Timer_Component)))
-    result = Database.connectDependencies([['app_timer', 'PIC32CX_BZ2_DevSupport_Dependency', 'pic32cx_bz2_devsupport', 'Device_Support_Capability']])
-
+    pic32cx_bz2_family = {'PIC32CX1012BZ25048',
+                          'PIC32CX1012BZ25032',
+                          'PIC32CX1012BZ24032',
+                          'WBZ451',
+                          'WBZ450',
+                          }
+    pic32cx_bz3_family = {'PIC32CX5109BZ31048',
+                          'PIC32CX5109BZ31032',
+                          'WBZ351',
+                          'WBZ350',
+                          }     
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          }  
+    processor = Variables.get("__PROCESSOR")
+    if( processor in pic32cx_bz2_family):
+        result = Database.connectDependencies([['app_timer', 'PIC32CX_BZ2_DevSupport_Dependency', 'pic32cx_bz2_devsupport', 'Device_Support_Capability']])
+    if( processor in pic32cx_bz3_family):
+        result = Database.connectDependencies([['app_timer', 'PIC32CX_BZ3_DevSupport_Dependency', 'pic32cx_bz3_devsupport', 'Device_Support_Capability']])
+    if( processor in pic32cx_bz6_family):
+        result = Database.connectDependencies([['app_timer', 'PIC32CX_BZ6_DevSupport_Dependency', 'pic32cx_bz6_devsupport', 'Device_Support_Capability']])
+    print('App Timer -> finalizeComponent - {}'.format(str(app_Timer_Component)))
 
 def instantiateComponent(app_Timer_Component):
     print('App Timer -> instantiateComponent - {}'.format(str(app_Timer_Component)))
@@ -54,7 +78,34 @@ def instantiateComponent(app_Timer_Component):
     processor = Variables.get("__PROCESSOR")
     print processor
 
-    Database.activateComponents(["pic32cx_bz2_devsupport"])
+
+    pic32cx_bz2_family = {'PIC32CX1012BZ25048',
+                          'PIC32CX1012BZ25032',
+                          'PIC32CX1012BZ24032',
+                          'WBZ451',
+                          'WBZ450',
+                          }
+    pic32cx_bz3_family = {'PIC32CX5109BZ31048',
+                          'PIC32CX5109BZ31032',
+                          'WBZ351',
+                          'WBZ350',
+                          }     
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          }  
+    
+    if( processor in pic32cx_bz2_family):
+        Database.activateComponents(["pic32cx_bz2_devsupport"])
+    if( processor in pic32cx_bz3_family):
+        Database.activateComponents(["pic32cx_bz3_devsupport"])
+    if( processor in pic32cx_bz6_family):
+        Database.activateComponents(["pic32cx_bz6_devsupport"])
+    
+
     useTimerComponent = Database.getComponentByID("FreeRTOS")
     if (useTimerComponent != None):
         useTimerChoice = useTimerComponent.getSymbolByID("FREERTOS_USE_TIMERS")
