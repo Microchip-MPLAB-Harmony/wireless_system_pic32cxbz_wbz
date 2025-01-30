@@ -61,6 +61,7 @@ def finalizeComponent(app_Timer_Component):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',
                           }  
     processor = Variables.get("__PROCESSOR")
     if( processor in pic32cx_bz2_family):
@@ -96,6 +97,7 @@ def instantiateComponent(app_Timer_Component):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',                          
                           }  
     
     if( processor in pic32cx_bz2_family):

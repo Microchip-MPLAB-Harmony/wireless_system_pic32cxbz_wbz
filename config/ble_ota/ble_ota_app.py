@@ -120,6 +120,7 @@ def instantiateComponent(ble_ota):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',                          
                           } 
     deviceFamily = ble_ota.createStringSymbol("DEVICE_FAM", None)
     deviceFamily.setVisible(False)

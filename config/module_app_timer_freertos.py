@@ -43,6 +43,7 @@ pic32cx_bz6_family = {'PIC32CX2051BZ62132',
                       'WBZ651',
                       'WBZ652',
                       'WBZ653',
+                      'PIC32WM_BZ6204',                      
                       }                          
 atsam_family       = {'ATSAML21J18B',
                       'ATSAMD21G18A',

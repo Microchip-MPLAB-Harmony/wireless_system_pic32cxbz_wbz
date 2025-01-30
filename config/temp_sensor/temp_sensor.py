@@ -76,6 +76,7 @@ def instantiateComponent(temp_sensor):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',
                           }  
     deviceFamily = temp_sensor.createStringSymbol("DEVICE_FAMILY", None)
     deviceFamily.setVisible(False)

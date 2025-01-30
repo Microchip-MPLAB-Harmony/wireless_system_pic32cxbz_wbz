@@ -104,6 +104,7 @@ def finalizeComponent(rgb_led):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',                          
                           }                          
     processor = Variables.get("__PROCESSOR")
     if( processor in pic32cx_bz2_family):
@@ -143,6 +144,7 @@ def instantiateComponent(rgb_led):
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',                          
                           } 
     deviceFamily = rgb_led.createStringSymbol("DEVICE_FAM", None)
     deviceFamily.setVisible(False)
@@ -189,7 +191,7 @@ def instantiateComponent(rgb_led):
         WOComment.setLabel("Warning!!! Configure TCC WO1 (Red), W02 (Green), WO4 (Blue) output pins in Pin Configuration ")
         WOComment = rgb_led.createCommentSymbol("TCC_WO_PIN_CONF_1", None)
         WOComment.setVisible(True)
-        WOComment.setLabel("Note: On WBZ653 Curiosity Board, Red -> RC7, Green -> RC10, Blue -> RE0")         
+        WOComment.setLabel("Note: On PIC32WM-BZ6204 Curiosity Board, Red -> RC7, Green -> RC10, Blue -> RE0")         
         print ('rgb warning') 
    
     

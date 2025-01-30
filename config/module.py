@@ -43,6 +43,7 @@ def loadModule():
                           'WBZ651',
                           'WBZ652',
                           'WBZ653',
+                          'PIC32WM_BZ6204',
                           }                          
     atsam_family       = {'ATSAML21J18B',
 	                      'ATSAMD21G18A',
