@@ -98,11 +98,22 @@ float MCP9700_Temp_Celsius(void)
 	for(i=0; i<5; i++)
     {
         ADCHS_GlobalEdgeConversionStart();
-    
+<#if (DEVICE_FAMILY == "BZ6") >			
+        while(!ADCHS_ChannelResultIsReady(ADCHS_CH10));
+        
+        adc_read1 = ADCHS_ChannelResultGet(ADCHS_CH10);
+</#if>    
+<#if (DEVICE_FAMILY == "BZ2") >			
         while(!ADCHS_ChannelResultIsReady(ADCHS_CH2));
         
         adc_read1 = ADCHS_ChannelResultGet(ADCHS_CH2);
+</#if>
+<#if (DEVICE_FAMILY == "BZ3") >			
+        while(!ADCHS_ChannelResultIsReady(ADCHS_CH2));
         
+        adc_read1 = ADCHS_ChannelResultGet(ADCHS_CH2);
+</#if>    
+
         if(i!=0)
             adc_read = adc_read + adc_read1;
     }
