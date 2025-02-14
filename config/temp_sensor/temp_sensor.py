@@ -27,6 +27,15 @@ def onAttachmentConnected(source, target):
     remoteID = remoteComponent.getID()
     connectID = source["id"]
     targetID = target["id"]
+    pic32cx_bz6_family = {'PIC32CX2051BZ62132',
+                          'PIC32CX2051BZ62064',
+                          'PIC32CX2051BZ66048',
+                          'WBZ651',
+                          'WBZ652',
+                          'WBZ653',
+                          'PIC32WM_BZ6204',
+                          }
+    processor = Variables.get("__PROCESSOR")
 
     if (connectID == "Temp_Sensor_Dependency"):
         print('Temp_Sensor_Dependency')
@@ -34,10 +43,17 @@ def onAttachmentConnected(source, target):
         if (remoteComponent != None):
             module_en = remoteComponent.getSymbolByID("ADCHS_7_ENABLE")
             module_en.setValue(True)
-            ch = remoteComponent.getSymbolByID("AN2")
-            ch.setValue(True)            
-            trigsrc = remoteComponent.getSymbolByID("ADCTRG1__TRGSRC2")
-            trigsrc.setValue(1)    
+
+            if (processor in pic32cx_bz6_family):
+                trigsrc = remoteComponent.getSymbolByID("ADCCON1__STRGSRC")
+                trigsrc.setValue(1)
+                ch = remoteComponent.getSymbolByID("ADCCSS1__CSS10")
+                ch.setValue(True)
+            else:
+                ch = remoteComponent.getSymbolByID("AN2")
+                ch.setValue(True)
+                trigsrc = remoteComponent.getSymbolByID("ADCTRG1__TRGSRC2")
+                trigsrc.setValue(1)
    
 
 def onAttachmentDisconnected(source, target):
