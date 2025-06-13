@@ -22,7 +22,7 @@
 - MPLABÂ® X IDE plug-ins:
 - MPLABÂ® Code Configurator (MCC) `v5.5.1`
 - [MPLABÂ® XC32 C/C++ Compiler v4.60](https://www.microchip.com/mplab/compilers)
-- **PIC32CXBZ6 Family - DFP 1.2.17**
+- **PIC32CX-BZ6 Family - DFP 1.2.17**
 
 ------------------------------------------------------------------------------------------------------
 
