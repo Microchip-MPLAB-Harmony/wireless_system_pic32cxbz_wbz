@@ -18,11 +18,11 @@
 
 ### Development Tools
 
-- [MPLABÂ® X IDE v6.25](https://www.microchip.com/mplab/mplab-x-ide)
-- MPLABÂ® X IDE plug-ins:
-- MPLABÂ® Code Configurator (MCC) `v5.5.1`
-- [MPLABÂ® XC32 C/C++ Compiler v4.60](https://www.microchip.com/mplab/compilers)
-- **PIC32CX-BZ6 Family - DFP 1.2.17**
+- [MPLAB® X IDE v6.25](https://www.microchip.com/mplab/mplab-x-ide)
+- MPLAB® X IDE plug-ins:
+	- MPLAB® Code Configurator (MCC) `v5.5.1`
+- [MPLAB® XC32 C/C++ Compiler v4.60](https://www.microchip.com/mplab/compilers)
+- PIC32CX-BZ6 Family - DFP 1.2.17
 
 ------------------------------------------------------------------------------------------------------
 
