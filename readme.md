@@ -43,13 +43,13 @@ Refer to the following links for release notes, training materials, and interfac
 | Folder     | Description                             |
 | ---        | ---                                     |
 | system       | Contains Wireless service code and configuration files. |
-| docs       | Contains documentation in html format for offline viewing (to be used only after cloning this repository onto a local machine). Use [github pages](https://microchip-mplab-harmony.github.io/wireless_system_pic32cxbz_wbz/) of this repository for viewing it online. |
+| docs       | [Wireless System Services documentation](https://onlinedocs.microchip.com/g/GUID-2085FE66-A762-4CC0-B054-7F98E8AF999A)
 
 ## Code Examples
 
-Wireless subsystem code examples for PIC32CXBZ2 can be found in the [wireless_apps_pic32cxbz2_wbz45](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cxbz2_wbz45) repo.
-Wireless subsystem code examples for PIC32CXBZ3 can be found in the [wireless_apps_pic32cxbz3_wbz35](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cxbz3_wbz35) repo.
-Wireless subsystem code examples for PIC32CXBZ6 can be found in the [wireless_apps_pic32cxbz3_wbz65](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cxbz3_wbz65) repo.
+- Wireless subsystem code examples for PIC32CXBZ2 can be found in the [wireless_apps_pic32cxbz2_wbz45](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cxbz2_wbz45) repo.
+- Wireless subsystem code examples for PIC32CXBZ3 can be found in the [wireless_apps_pic32cxbz3_wbz35](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cxbz3_wbz35) repo.
+- Wireless subsystem code examples for PIC32CXBZ6 can be found in the [wireless_apps_pic32cx_bz6](https://github.com/Microchip-MPLAB-Harmony/wireless_apps_pic32cx_bz6) repo.
 
 
 ____
